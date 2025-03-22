@@ -12,14 +12,15 @@
 <body class="bg-gray-100 min-h-screen p-6">
   <div id="app" class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
 
-    <!-- Language Switcher -->
-    <select v-model="currentLang" class="mb-4 p-2 border rounded">
-      <option value="et">🇪🇪 Eesti</option>
-      <option value="en">🇬🇧 English</option>
-      <option value="ru">🇷🇺 Русский</option>
-    </select>
-
-    <h1 class="text-2xl font-bold mb-4">{{ t('title') }}</h1>
+    <!-- Title and Language Selector in one row -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">{{ t('title') }}</h1>
+      <select v-model="currentLang" class="p-2 border rounded">
+        <option value="et">🇪🇪 Eesti</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="ru">🇷🇺 Русский</option>
+      </select>
+    </div>
 
     <!-- Input Form -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -66,7 +67,7 @@
   </div>
 
   <script>
-    const { createApp } = Vue;
+    const { createApp, watch } = Vue;
 
     createApp({
       data() {
@@ -84,7 +85,7 @@
             otherCosts: ''
           },
           cars: JSON.parse(localStorage.getItem('cars')) || [],
-          currentLang: 'et', // Default Estonian
+          currentLang: 'et',
           translations: {
             en: {
               title: 'Car Cost Tracker',
@@ -152,10 +153,23 @@
           }
         }
       },
+
+      created() {
+        const savedLang = localStorage.getItem('preferredLang');
+        if (savedLang) this.currentLang = savedLang;
+      },
+
+      watch: {
+        currentLang(newLang) {
+          localStorage.setItem('preferredLang', newLang);
+        }
+      },
+
       methods: {
         t(key) {
           return this.translations[this.currentLang][key] || key;
         },
+
         addCar() {
           if (this.car.name) {
             const newCar = {
@@ -167,17 +181,21 @@
             this.resetForm();
           }
         },
+
         removeCar(index) {
           this.cars.splice(index, 1);
           this.saveToLocalStorage();
         },
+
         clearAll() {
           this.cars = [];
           localStorage.removeItem('cars');
         },
+
         saveToLocalStorage() {
           localStorage.setItem('cars', JSON.stringify(this.cars));
         },
+
         resetForm() {
           this.car = {
             name: '',
@@ -192,9 +210,11 @@
             otherCosts: ''
           };
         },
+
         fuelCost(car) {
           return ((car.fuelConsumption / 100) * car.mileage * car.fuelPrice) || 0;
         },
+
         calculateAnnualCost(car) {
           return this.fuelCost(car) +
             (parseFloat(car.insurance) || 0) +
