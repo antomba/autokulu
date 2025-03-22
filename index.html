@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto kulude kalkulaator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+  <div id="app" class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+
+    <!-- Language Switcher -->
+    <select v-model="currentLang" class="mb-4 p-2 border rounded">
+      <option value="et">🇪🇪 Eesti</option>
+      <option value="en">🇬🇧 English</option>
+      <option value="ru">🇷🇺 Русский</option>
+    </select>
+
+    <h1 class="text-2xl font-bold mb-4">{{ t('title') }}</h1>
+
+    <!-- Input Form -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input v-model="car.name" type="text" :placeholder="t('carName')" class="p-2 border rounded">
+      <input v-model="car.link" type="url" :placeholder="t('webLink')" class="p-2 border rounded">
+      <input v-model.number="car.fuelConsumption" type="number" :placeholder="t('fuelConsumption')"
+        class="p-2 border rounded">
+      <input v-model.number="car.fuelPrice" type="number" :placeholder="t('fuelPrice')" class="p-2 border rounded">
+      <input v-model.number="car.mileage" type="number" :placeholder="t('mileage')" class="p-2 border rounded">
+      <input v-model.number="car.insurance" type="number" :placeholder="t('insurance')" class="p-2 border rounded">
+      <input v-model.number="car.casco" type="number" :placeholder="t('casco')" class="p-2 border rounded">
+      <input v-model.number="car.maintenance" type="number" :placeholder="t('maintenance')" class="p-2 border rounded">
+      <input v-model.number="car.depreciation" type="number" :placeholder="t('depreciation')"
+        class="p-2 border rounded">
+      <input v-model.number="car.otherCosts" type="number" :placeholder="t('otherCosts')" class="p-2 border rounded">
+    </div>
+
+    <button @click="addCar" class="bg-blue-600 text-white mt-4 p-2 rounded w-full">{{ t('addCar') }}</button>
+
+    <!-- Saved Cars -->
+    <div v-if="cars.length" class="mt-8">
+      <h2 class="text-xl font-semibold mb-4">{{ t('savedCars') }}</h2>
+      <div v-for="(c, index) in cars" :key="index" class="border-b pb-4 mb-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <a :href="c.link" target="_blank" class="font-bold text-lg text-blue-700 hover:underline">{{ c.name }}</a>
+            <p class="text-gray-600 text-sm">{{ t('saved') }}: {{ c.savedDate }}</p>
+            <p>{{ t('annualCost') }}: <span class="font-semibold">€{{ calculateAnnualCost(c).toFixed(2) }}</span></p>
+            <p>{{ t('monthlyCost') }}: <span class="font-semibold">€{{ (calculateAnnualCost(c) / 12).toFixed(2)
+                }}</span></p>
+          </div>
+          <button @click="removeCar(index)" class="text-red-600 hover:underline">{{ t('remove') }}</button>
+        </div>
+        <div class="text-sm mt-2 text-gray-700">
+          <p>{{ t('fuelCost') }}: €{{ fuelCost(c).toFixed(2) }}</p>
+          <p>{{ t('insurance') }}: €{{ c.insurance }}, Casco: €{{ c.casco }}, {{ t('maintenance') }}: €{{ c.maintenance
+            }}, {{ t('depreciation') }}: €{{ c.depreciation }}, {{ t('otherCosts') }}: €{{ c.otherCosts }}</p>
+        </div>
+      </div>
+
+      <button @click="clearAll" class="mt-6 bg-red-500 text-white p-2 rounded w-full">{{ t('clear') }}</button>
+    </div>
+
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          car: {
+            name: '',
+            link: '',
+            fuelConsumption: '',
+            fuelPrice: '',
+            mileage: '',
+            insurance: '',
+            casco: '',
+            maintenance: '',
+            depreciation: '',
+            otherCosts: ''
+          },
+          cars: JSON.parse(localStorage.getItem('cars')) || [],
+          currentLang: 'et', // Default Estonian
+          translations: {
+            en: {
+              title: 'Car Cost Tracker',
+              addCar: 'Add Car',
+              savedCars: 'Saved Cars',
+              saved: 'Saved',
+              annualCost: 'Annual Total Cost',
+              monthlyCost: 'Monthly Cost',
+              fuelCost: 'Fuel Cost/year',
+              insurance: 'Insurance',
+              maintenance: 'Maintenance',
+              depreciation: 'Depreciation',
+              otherCosts: 'Other Costs',
+              remove: 'Remove',
+              clear: 'Clear All',
+              carName: 'Car Name',
+              webLink: 'Web Link',
+              fuelConsumption: 'Fuel Consumption (L/100km)',
+              fuelPrice: 'Fuel Price (€/L)',
+              mileage: 'Mileage per Year (km)',
+              casco: 'Casco'
+            },
+            et: {
+              title: 'Auto kulude kalkulaator',
+              addCar: 'Lisa auto',
+              savedCars: 'Salvestatud autod',
+              saved: 'Salvestatud',
+              annualCost: 'Aastane kogukulu',
+              monthlyCost: 'Kuu kulu',
+              fuelCost: 'Kütusekulu aastas',
+              insurance: 'Kindlustus',
+              maintenance: 'Hooldus',
+              depreciation: 'Amortisatsioon',
+              otherCosts: 'Muud kulud',
+              remove: 'Eemalda',
+              clear: 'Kustuta kõik',
+              carName: 'Auto nimi',
+              webLink: 'Veebileht',
+              fuelConsumption: 'Kütusekulu (L/100km)',
+              fuelPrice: 'Kütuse hind (€/L)',
+              mileage: 'Läbisõit aastas (km)',
+              casco: 'Kasko'
+            },
+            ru: {
+              title: 'Калькулятор расходов на авто',
+              addCar: 'Добавить авто',
+              savedCars: 'Сохранённые авто',
+              saved: 'Сохранено',
+              annualCost: 'Годовые затраты',
+              monthlyCost: 'Ежемесячные затраты',
+              fuelCost: 'Расход на топливо в год',
+              insurance: 'Страховка',
+              maintenance: 'Техобслуживание',
+              depreciation: 'Амортизация',
+              otherCosts: 'Прочие расходы',
+              remove: 'Удалить',
+              clear: 'Удалить все',
+              carName: 'Название авто',
+              webLink: 'Ссылка',
+              fuelConsumption: 'Расход топлива (л/100км)',
+              fuelPrice: 'Цена топлива (€/л)',
+              mileage: 'Пробег в год (км)',
+              casco: 'Каско'
+            }
+          }
+        }
+      },
+      methods: {
+        t(key) {
+          return this.translations[this.currentLang][key] || key;
+        },
+        addCar() {
+          if (this.car.name) {
+            const newCar = {
+              ...this.car,
+              savedDate: new Date().toLocaleDateString('et-EE')
+            };
+            this.cars.push(newCar);
+            this.saveToLocalStorage();
+            this.resetForm();
+          }
+        },
+        removeCar(index) {
+          this.cars.splice(index, 1);
+          this.saveToLocalStorage();
+        },
+        clearAll() {
+          this.cars = [];
+          localStorage.removeItem('cars');
+        },
+        saveToLocalStorage() {
+          localStorage.setItem('cars', JSON.stringify(this.cars));
+        },
+        resetForm() {
+          this.car = {
+            name: '',
+            link: '',
+            fuelConsumption: '',
+            fuelPrice: '',
+            mileage: '',
+            insurance: '',
+            casco: '',
+            maintenance: '',
+            depreciation: '',
+            otherCosts: ''
+          };
+        },
+        fuelCost(car) {
+          return ((car.fuelConsumption / 100) * car.mileage * car.fuelPrice) || 0;
+        },
+        calculateAnnualCost(car) {
+          return this.fuelCost(car) +
+            (parseFloat(car.insurance) || 0) +
+            (parseFloat(car.casco) || 0) +
+            (parseFloat(car.maintenance) || 0) +
+            (parseFloat(car.depreciation) || 0) +
+            (parseFloat(car.otherCosts) || 0);
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+
+</html>
