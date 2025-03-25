@@ -15,7 +15,6 @@
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   gtag('js', new Date());
-
   gtag('config', 'G-5WS1EH8N9H');
 </script>
 
@@ -50,6 +49,14 @@
 
     <button @click="addCar" class="bg-blue-600 text-white mt-4 p-2 rounded w-full">{{ t('addCar') }}</button>
 
+    <div class="mt-4 flex w-full items-center justify-center gap-4">
+      <label for="dropzone-file"
+        class="flex h-10 w-full cursor-pointer flex-col items-center justify-center rounded border-dashed border-green-300 bg-green-50 text-white hover:bg-green-100 dark:border-green-600 dark:bg-green-700 dark:hover:border-green-500 dark:hover:bg-green-600 dark:hover:bg-green-800">
+        {{ t('import') }}
+        <input id="dropzone-file" type="file" @change="importCars" accept=".json" class="hidden" />
+      </label>
+    </div>
+
     <!-- Saved Cars -->
     <div v-if="cars.length" class="mt-8">
       <h2 class="text-xl font-semibold mb-4">{{ t('savedCars') }}</h2>
@@ -73,6 +80,8 @@
       </div>
 
       <button @click="clearAll" class="mt-6 bg-red-500 text-white p-2 rounded w-full">{{ t('clear') }}</button>
+      <button @click="exportCars" class="mt-4 bg-green-700 text-white p-2 rounded w-full">{{ t('export') }}</button>
+
     </div>
 
   </div>
@@ -117,7 +126,10 @@
               fuelConsumption: 'Fuel Consumption (L/100km)',
               fuelPrice: 'Fuel Price (€/L)',
               mileage: 'Mileage per Year (km)',
-              casco: 'Casco Insurance per Year'
+              casco: 'Casco Insurance per Year',
+              export: 'Export Cars',
+              import: 'Import Cars',
+              invalidFile: 'Invalid file format. Please upload a valid JSON file.'
             },
             et: {
               title: 'Auto ülalpidamiskulu kalkulaator',
@@ -138,7 +150,10 @@
               fuelConsumption: 'Kütusekulu (L/100km)',
               fuelPrice: 'Kütuse hind (€/L)',
               mileage: 'Läbisõit aastas (km)',
-              casco: 'Kasko kindlustus aastas'
+              casco: 'Kasko kindlustus aastas',
+              export: 'Ekspordi autod',
+              import: 'Impordi autod',
+              invalidFile: 'Vigane failivorming. Palun laadige üles sobilik JSON-fail.'
             },
             ru: {
               title: 'Калькулятор расходов на автомобиль',
@@ -159,7 +174,10 @@
               fuelConsumption: 'Расход топлива (л/100км)',
               fuelPrice: 'Цена топлива (€/л)',
               mileage: 'Пробег в год (км)',
-              casco: 'Каско страховка в год'
+              casco: 'Каско страховка в год',
+              export: 'Экспортировать авто',
+              import: 'Импортировать авто',
+              invalidFile: 'Неверный формат файла. Пожалуйста, загрузите подходящий JSON-файл.'
             }
           }
         }
@@ -233,6 +251,33 @@
             (parseFloat(car.maintenance) || 0) +
             (parseFloat(car.depreciation) || 0) +
             (parseFloat(car.otherCosts) || 0);
+        },
+
+        exportCars() {
+          const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.cars));
+          const downloadAnchorNode = document.createElement('a');
+          downloadAnchorNode.setAttribute("href", dataStr);
+          downloadAnchorNode.setAttribute("download", "cars.json");
+          document.body.appendChild(downloadAnchorNode);
+          downloadAnchorNode.click();
+          downloadAnchorNode.remove();
+        },
+
+        importCars(event) {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              try {
+                const importedCars = JSON.parse(e.target.result);
+                this.cars = importedCars;
+                this.saveToLocalStorage();
+              } catch (error) {
+                alert(this.t('invalidFile'));
+              }
+            };
+            reader.readAsText(file);
+          }
         }
       }
     }).mount('#app');
