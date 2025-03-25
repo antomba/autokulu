@@ -66,7 +66,8 @@
         </div>
         <div class="text-sm mt-2 text-gray-700">
           <p>{{ t('fuelCost') }}: €{{ fuelCost(c).toFixed(2) }}</p>
-          <p>{{ t('insurance') }}: €{{ c.insurance }}, Casco: €{{ c.casco }}, {{ t('maintenance') }}: €{{ c.maintenance
+          <p>{{ t('insurance') }}: €{{ c.insurance }}, {{ t('casco') }}: €{{ c.casco }}, {{ t('maintenance') }}: €{{
+            c.maintenance
             }}, {{ t('depreciation') }}: €{{ c.depreciation }}, {{ t('otherCosts') }}: €{{ c.otherCosts }}</p>
         </div>
       </div>
