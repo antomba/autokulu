@@ -70,46 +70,48 @@
 
 
       <!-- Cars Table -->
-      <table class="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr class="bg-gray-100">
-            <th @click="sortBy('name')" class="border border-gray-300 p-2 cursor-pointer">
-              {{ t('carName') }}
-              <span v-if="sortKey === 'name'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
-            </th>
-            <th @click="sortBy('annualCost')" class="border border-gray-300 p-2 cursor-pointer">
-              {{ t('annualCost') }}
-              <span v-if="sortKey === 'annualCost'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
-            </th>
-            <th @click="sortBy('monthlyCost')" class="border border-gray-300 p-2 cursor-pointer">
-              {{ t('monthlyCost') }}
-              <span v-if="sortKey === 'monthlyCost'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
-            </th>
-            <th class="border border-gray-300 p-2">{{ t('subCosts') }}</th>
-            <th class="border border-gray-300 p-2">{{ t('actions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(c, index) in sortedCars" :key="index">
-            <td class="border border-gray-300 p-2">
-              <a :href="c.link" target="_blank" class="text-blue-700 hover:underline">{{ c.name }}</a>
-            </td>
-            <td class="border border-gray-300 p-2">€{{ calculateAnnualCost(c).toFixed(2) }}</td>
-            <td class="border border-gray-300 p-2">€{{ (calculateAnnualCost(c) / 12).toFixed(2) }}</td>
-            <td class="border border-gray-300 p-2 text-sm">
-              <p>{{ t('fuelCost') }}: €{{ fuelCost(c).toFixed(2) }}</p>
-              <p>{{ t('insurance') }}: €{{ c.insurance }}</p>
-              <p>{{ t('casco') }}: €{{ c.casco }}</p>
-              <p>{{ t('maintenance') }}: €{{ c.maintenance }}</p>
-              <p>{{ t('depreciation') }}: €{{ c.depreciation }}</p>
-              <p>{{ t('otherCosts') }}: €{{ c.otherCosts }}</p>
-            </td>
-            <td class="border border-gray-300 p-2">
-              <button @click="removeCar(index)" class="text-red-600 hover:underline">{{ t('remove') }}</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-gray-100">
+              <th @click="sortBy('name')" class="border border-gray-300 p-2 cursor-pointer">
+                {{ t('carName') }}
+                <span v-if="sortKey === 'name'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+              </th>
+              <th @click="sortBy('annualCost')" class="border border-gray-300 p-2 cursor-pointer">
+                {{ t('annualCost') }}
+                <span v-if="sortKey === 'annualCost'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+              </th>
+              <th @click="sortBy('monthlyCost')" class="border border-gray-300 p-2 cursor-pointer">
+                {{ t('monthlyCost') }}
+                <span v-if="sortKey === 'monthlyCost'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+              </th>
+              <th class="border border-gray-300 p-2">{{ t('subCosts') }}</th>
+              <th class="border border-gray-300 p-2">{{ t('actions') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(c, index) in sortedCars" :key="index" class="hover:bg-gray-50">
+              <td class="border border-gray-300 p-2">
+                <a :href="c.link" target="_blank" class="text-blue-700 hover:underline">{{ c.name }}</a>
+              </td>
+              <td class="border border-gray-300 p-2">€{{ calculateAnnualCost(c).toFixed(2) }}</td>
+              <td class="border border-gray-300 p-2">€{{ (calculateAnnualCost(c) / 12).toFixed(2) }}</td>
+              <td class="border border-gray-300 p-2 text-sm">
+                <p>{{ t('fuelCost') }}: €{{ fuelCost(c).toFixed(2) }}</p>
+                <p>{{ t('insurance') }}: €{{ c.insurance }}</p>
+                <p>{{ t('casco') }}: €{{ c.casco }}</p>
+                <p>{{ t('maintenance') }}: €{{ c.maintenance }}</p>
+                <p>{{ t('depreciation') }}: €{{ c.depreciation }}</p>
+                <p>{{ t('otherCosts') }}: €{{ c.otherCosts }}</p>
+              </td>
+              <td class="border border-gray-300 p-2">
+                <button @click="removeCar(index)" class="text-red-600 hover:underline">{{ t('remove') }}</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <button @click="clearAll" class="mt-6 bg-red-500 text-white p-2 rounded w-full">{{ t('clear') }}</button>
       <button @click="exportCars" class="mt-4 bg-green-700 text-white p-2 rounded w-full">{{ t('export') }}</button>
