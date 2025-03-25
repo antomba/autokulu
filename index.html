@@ -7,6 +7,12 @@
   <title>Auto kulude kalkulaator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    th.cursor-pointer {
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
 </head>
 
 <!-- Google tag (gtag.js) -->
@@ -57,31 +63,56 @@
       </label>
     </div>
 
-    <!-- Saved Cars -->
+    <!-- Saved Cars Section -->
     <div v-if="cars.length" class="mt-8">
       <h2 class="text-xl font-semibold mb-4">{{ t('savedCars') }}</h2>
-      <div v-for="(c, index) in cars" :key="index" class="border-b pb-4 mb-4">
-        <div class="flex justify-between items-center">
-          <div>
-            <a :href="c.link" target="_blank" class="font-bold text-lg text-blue-700 hover:underline">{{ c.name }}</a>
-            <p class="text-gray-600 text-sm">{{ t('saved') }}: {{ c.savedDate }}</p>
-            <p>{{ t('annualCost') }}: <span class="font-semibold">€{{ calculateAnnualCost(c).toFixed(2) }}</span></p>
-            <p>{{ t('monthlyCost') }}: <span class="font-semibold">€{{ (calculateAnnualCost(c) / 12).toFixed(2)
-                }}</span></p>
-          </div>
-          <button @click="removeCar(index)" class="text-red-600 hover:underline">{{ t('remove') }}</button>
-        </div>
-        <div class="text-sm mt-2 text-gray-700">
-          <p>{{ t('fuelCost') }}: €{{ fuelCost(c).toFixed(2) }}</p>
-          <p>{{ t('insurance') }}: €{{ c.insurance }}, {{ t('casco') }}: €{{ c.casco }}, {{ t('maintenance') }}: €{{
-            c.maintenance
-            }}, {{ t('depreciation') }}: €{{ c.depreciation }}, {{ t('otherCosts') }}: €{{ c.otherCosts }}</p>
-        </div>
-      </div>
+
+
+
+      <!-- Cars Table -->
+      <table class="w-full border-collapse border border-gray-300">
+        <thead>
+          <tr class="bg-gray-100">
+            <th @click="sortBy('name')" class="border border-gray-300 p-2 cursor-pointer">
+              {{ t('carName') }}
+              <span v-if="sortKey === 'name'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+            </th>
+            <th @click="sortBy('annualCost')" class="border border-gray-300 p-2 cursor-pointer">
+              {{ t('annualCost') }}
+              <span v-if="sortKey === 'annualCost'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+            </th>
+            <th @click="sortBy('monthlyCost')" class="border border-gray-300 p-2 cursor-pointer">
+              {{ t('monthlyCost') }}
+              <span v-if="sortKey === 'monthlyCost'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+            </th>
+            <th class="border border-gray-300 p-2">{{ t('subCosts') }}</th>
+            <th class="border border-gray-300 p-2">{{ t('actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(c, index) in sortedCars" :key="index">
+            <td class="border border-gray-300 p-2">
+              <a :href="c.link" target="_blank" class="text-blue-700 hover:underline">{{ c.name }}</a>
+            </td>
+            <td class="border border-gray-300 p-2">€{{ calculateAnnualCost(c).toFixed(2) }}</td>
+            <td class="border border-gray-300 p-2">€{{ (calculateAnnualCost(c) / 12).toFixed(2) }}</td>
+            <td class="border border-gray-300 p-2 text-sm">
+              <p>{{ t('fuelCost') }}: €{{ fuelCost(c).toFixed(2) }}</p>
+              <p>{{ t('insurance') }}: €{{ c.insurance }}</p>
+              <p>{{ t('casco') }}: €{{ c.casco }}</p>
+              <p>{{ t('maintenance') }}: €{{ c.maintenance }}</p>
+              <p>{{ t('depreciation') }}: €{{ c.depreciation }}</p>
+              <p>{{ t('otherCosts') }}: €{{ c.otherCosts }}</p>
+            </td>
+            <td class="border border-gray-300 p-2">
+              <button @click="removeCar(index)" class="text-red-600 hover:underline">{{ t('remove') }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       <button @click="clearAll" class="mt-6 bg-red-500 text-white p-2 rounded w-full">{{ t('clear') }}</button>
       <button @click="exportCars" class="mt-4 bg-green-700 text-white p-2 rounded w-full">{{ t('export') }}</button>
-
     </div>
 
   </div>
@@ -106,6 +137,8 @@
           },
           cars: JSON.parse(localStorage.getItem('cars')) || [],
           currentLang: 'et',
+          sortKey: null, // Key to sort by (e.g., 'annualCost' or 'monthlyCost')
+          sortOrder: 'asc', // Sorting order: 'asc' or 'desc'
           translations: {
             en: {
               title: 'Car ownership cost calculator',
@@ -129,7 +162,11 @@
               casco: 'Casco Insurance per Year',
               export: 'Export Cars',
               import: 'Import Cars',
-              invalidFile: 'Invalid file format. Please upload a valid JSON file.'
+              invalidFile: 'Invalid file format. Please upload a valid JSON file.',
+              sortByAnnualCost: 'Sort by Annual Cost',
+              sortByMonthlyCost: 'Sort by Monthly Cost',
+              subCosts: 'Sub Costs',
+              actions: 'Actions'
             },
             et: {
               title: 'Auto ülalpidamiskulu kalkulaator',
@@ -153,7 +190,11 @@
               casco: 'Kasko kindlustus aastas',
               export: 'Ekspordi autod',
               import: 'Impordi autod',
-              invalidFile: 'Vigane failivorming. Palun laadige üles sobilik JSON-fail.'
+              invalidFile: 'Vigane failivorming. Palun laadige üles sobilik JSON-fail.',
+              sortByAnnualCost: 'Sorteeri aastase kulu järgi',
+              sortByMonthlyCost: 'Sorteeri kuu kulu järgi',
+              subCosts: 'Alamkulud',
+              actions: 'Tegevused'
             },
             ru: {
               title: 'Калькулятор расходов на автомобиль',
@@ -162,11 +203,11 @@
               saved: 'Сохранено',
               annualCost: 'Годовые затраты',
               monthlyCost: 'Ежемесячные затраты',
-              fuelCost: 'Расход на топливо в год',
-              insurance: 'Страховка в год',
-              maintenance: 'Техобслуживание в год',
-              depreciation: 'Амортизация в год',
-              otherCosts: 'Прочие расходы в год',
+              fuelCost: 'Топливо',
+              insurance: 'Страховка',
+              maintenance: 'Обслуживание',
+              depreciation: 'Амортизация',
+              otherCosts: 'Прочее',
               remove: 'Удалить',
               clear: 'Удалить все',
               carName: 'Название авто',
@@ -174,10 +215,14 @@
               fuelConsumption: 'Расход топлива (л/100км)',
               fuelPrice: 'Цена топлива (€/л)',
               mileage: 'Пробег в год (км)',
-              casco: 'Каско страховка в год',
+              casco: 'Каско',
               export: 'Экспортировать авто',
               import: 'Импортировать авто',
-              invalidFile: 'Неверный формат файла. Пожалуйста, загрузите подходящий JSON-файл.'
+              invalidFile: 'Неверный формат файла. Пожалуйста, загрузите подходящий JSON-файл.',
+              sortByAnnualCost: 'Сортировать по годовым затратам',
+              sortByMonthlyCost: 'Сортировать по ежемесячным затратам',
+              subCosts: 'Подзатраты в год',
+              actions: 'Действия'
             }
           }
         }
@@ -191,6 +236,34 @@
       watch: {
         currentLang(newLang) {
           localStorage.setItem('preferredLang', newLang);
+        }
+      },
+
+      computed: {
+        sortedCars() {
+          if (!this.sortKey) {
+            return this.cars;
+          }
+          return [...this.cars].sort((a, b) => {
+            let aValue, bValue;
+
+            if (this.sortKey === 'annualCost') {
+              aValue = this.calculateAnnualCost(a);
+              bValue = this.calculateAnnualCost(b);
+            } else if (this.sortKey === 'monthlyCost') {
+              aValue = this.calculateAnnualCost(a) / 12;
+              bValue = this.calculateAnnualCost(b) / 12;
+            } else {
+              aValue = a[this.sortKey]?.toString().toLowerCase() || '';
+              bValue = b[this.sortKey]?.toString().toLowerCase() || '';
+            }
+
+            if (this.sortOrder === 'asc') {
+              return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+            } else {
+              return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+            }
+          });
         }
       },
 
@@ -277,6 +350,17 @@
               }
             };
             reader.readAsText(file);
+          }
+        },
+
+        sortBy(key) {
+          if (this.sortKey === key) {
+            // Toggle sort order if the same key is clicked
+            this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+          } else {
+            // Set new sort key and default to ascending order
+            this.sortKey = key;
+            this.sortOrder = 'asc';
           }
         }
       }
