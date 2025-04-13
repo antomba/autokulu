@@ -31,7 +31,8 @@
     <!-- Title and Language Selector in one row -->
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">{{ t('title') }}</h1>
-      <select v-model="currentLang" class="p-2 border rounded">
+      <label for="language" class="sr-only">Vali keel</label>
+      <select id="language" v-model="currentLang" class="p-2 border rounded">
         <option value="et">🇪🇪 Eesti</option>
         <option value="en">🇬🇧 English</option>
         <option value="ru">🇷🇺 Русский</option>
