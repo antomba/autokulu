@@ -41,18 +41,45 @@
 
     <!-- Input Form -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <input v-model="car.name" type="text" :placeholder="t('carName')" class="p-2 border rounded">
-      <input v-model="car.link" type="url" :placeholder="t('webLink')" class="p-2 border rounded">
-      <input v-model.number="car.fuelConsumption" type="number" :placeholder="t('fuelConsumption')"
-        class="p-2 border rounded">
-      <input v-model.number="car.fuelPrice" type="number" :placeholder="t('fuelPrice')" class="p-2 border rounded">
-      <input v-model.number="car.mileage" type="number" :placeholder="t('mileage')" class="p-2 border rounded">
-      <input v-model.number="car.insurance" type="number" :placeholder="t('insurance')" class="p-2 border rounded">
-      <input v-model.number="car.casco" type="number" :placeholder="t('casco')" class="p-2 border rounded">
-      <input v-model.number="car.maintenance" type="number" :placeholder="t('maintenance')" class="p-2 border rounded">
-      <input v-model.number="car.depreciation" type="number" :placeholder="t('depreciation')"
-        class="p-2 border rounded">
-      <input v-model.number="car.otherCosts" type="number" :placeholder="t('otherCosts')" class="p-2 border rounded">
+      <div class="flex flex-col">
+        <input v-model="car.name" type="text" :placeholder="t('carName')" class="p-2 border rounded w-full">
+        <p v-if="validationErrors.name" class="text-red-600 text-sm mt-1">{{ validationErrors.name }}</p>
+      </div>
+      <div class="flex flex-col">
+        <input v-model="car.link" type="url" :placeholder="t('webLink')" class="p-2 border rounded w-full">
+        <p v-if="validationErrors.link" class="text-red-600 text-sm mt-1">{{ validationErrors.link }}</p>
+      </div>
+      <div class="flex flex-col">
+        <input v-model.number="car.fuelConsumption" type="number" :placeholder="t('fuelConsumption')" class="p-2 border rounded w-full">
+        <p v-if="validationErrors.fuelConsumption" class="text-red-600 text-sm mt-1">{{ validationErrors.fuelConsumption }}</p>
+      </div>
+      <div class="flex flex-col">
+        <input v-model.number="car.fuelPrice" type="number" :placeholder="t('fuelPrice')" class="p-2 border rounded w-full">
+        <p v-if="validationErrors.fuelPrice" class="text-red-600 text-sm mt-1">{{ validationErrors.fuelPrice }}</p>
+      </div>
+      <div class="flex flex-col">
+        <input v-model.number="car.mileage" type="number" :placeholder="t('mileage')" class="p-2 border rounded w-full">
+        <p v-if="validationErrors.mileage" class="text-red-600 text-sm mt-1">{{ validationErrors.mileage }}</p>
+      </div>
+      <div class="flex flex-col">
+        <input v-model.number="car.insurance" type="number" :placeholder="t('insurance')" class="p-2 border rounded w-full">
+        <p v-if="validationErrors.insurance" class="text-red-600 text-sm mt-1">{{ validationErrors.insurance }}</p>
+      </div>
+      <div class="flex flex-col">
+        <input v-model.number="car.casco" type="number" :placeholder="t('casco')" class="p-2 border rounded w-full">
+        <p v-if="validationErrors.casco" class="text-red-600 text-sm mt-1">{{ validationErrors.casco }}</p>
+      </div>
+      <div class="flex flex-col">
+        <input v-model.number="car.maintenance" type="number" :placeholder="t('maintenance')" class="p-2 border rounded w-full">
+        <p v-if="validationErrors.maintenance" class="text-red-600 text-sm mt-1">{{ validationErrors.maintenance }}</p>
+      </div>
+      <div class="flex flex-col">
+        <input v-model.number="car.depreciation" type="number" :placeholder="t('depreciation')" class="p-2 border rounded w-full">
+      </div>
+      <div class="flex flex-col">
+        <input v-model.number="car.otherCosts" type="number" :placeholder="t('otherCosts')" class="p-2 border rounded w-full">
+        <p v-if="validationErrors.otherCosts" class="text-red-600 text-sm mt-1">{{ validationErrors.otherCosts }}</p>
+      </div>
     </div>
 
     <button @click="addCar" class="bg-blue-600 text-white mt-4 p-2 rounded w-full">{{ t('addCar') }}</button>
@@ -149,6 +176,7 @@
             otherCosts: ''
           },
           cars: JSON.parse(localStorage.getItem('cars')) || [],
+          validationErrors: {}, // Object to store validation errors
           currentLang: 'et',
           sortKey: null, // Key to sort by (e.g., 'annualCost' or 'monthlyCost')
           sortOrder: 'asc', // Sorting order: 'asc' or 'desc'
@@ -180,7 +208,10 @@
               sortByMonthlyCost: 'Sort by Monthly Cost',
               subCosts: 'Sub Costs per Year',
               actions: 'Actions',
-              edit: 'Edit'
+              edit: 'Edit',
+              carNameRequired: 'Car name is required.',
+              invalidURL: 'Please enter a valid URL.',
+              positiveNumber: 'Please enter a positive number.'
             },
             et: {
               title: 'Auto ülalpidamiskulu kalkulaator',
@@ -209,7 +240,10 @@
               sortByMonthlyCost: 'Sorteeri kuu kulu järgi',
               subCosts: 'Alamkulud aastas',
               actions: 'Tegevused',
-              edit: 'Muuda'
+              edit: 'Muuda',
+              carNameRequired: 'Auto nimi on kohustuslik.',
+              invalidURL: 'Palun sisestage kehtiv URL.',
+              positiveNumber: 'Palun sisestage positiivne number.'
             },
             ru: {
               title: 'Калькулятор расходов на автомобиль',
@@ -238,7 +272,10 @@
               sortByMonthlyCost: 'Сортировать по ежемесячным затратам',
               subCosts: 'Подзатраты в год',
               actions: 'Действия',
-              edit: 'Редактировать'
+              edit: 'Редактировать',
+              carNameRequired: 'Название автомобиля обязательно.',
+              invalidURL: 'Пожалуйста, введите действительный URL.',
+              positiveNumber: 'Пожалуйста, введите положительное число.'
             }
           }
         }
@@ -294,22 +331,60 @@
           this.editIndex = index; // Track the index of the car being edited
         },
 
+        validateForm() {
+          this.validationErrors = {}; // Reset errors
+
+          if (!this.car.name) {
+            this.validationErrors.name = this.t('carNameRequired');
+          }
+          if (this.car.link && !this.isValidURL(this.car.link)) {
+            this.validationErrors.link = this.t('invalidURL');
+          }
+          if (this.car.fuelConsumption < 0) {
+            this.validationErrors.fuelConsumption = this.t('positiveNumber');
+          }
+          if (this.car.fuelPrice < 0) {
+            this.validationErrors.fuelPrice = this.t('positiveNumber');
+          }
+          if (this.car.mileage < 0) {
+            this.validationErrors.mileage = this.t('positiveNumber');
+          }
+          if (this.car.insurance < 0) {
+            this.validationErrors.insurance = this.t('positiveNumber');
+          }
+          if (this.car.casco < 0) {
+            this.validationErrors.casco = this.t('positiveNumber');
+          }
+          if (this.car.maintenance < 0) {
+            this.validationErrors.maintenance = this.t('positiveNumber');
+          }
+          if (this.car.otherCosts < 0) {
+            this.validationErrors.otherCosts = this.t('positiveNumber');
+          }
+
+          return Object.keys(this.validationErrors).length === 0; // Return true if no errors
+        },
+
+        isValidURL(url) {
+          try {
+            new URL(url);
+            return true;
+          } catch (_) {
+            return false;
+          }
+        },
+
         addCar() {
-          if (this.car.name) {
-            if (this.editIndex !== null) {
-              // Update the existing car if in edit mode
-              this.cars[this.editIndex] = { ...this.car };
-              this.editIndex = null; // Reset edit mode
-            } else {
-              // Add a new car
+          if (this.validateForm()) {
+            if (this.car.name) {
               const newCar = {
                 ...this.car,
                 savedDate: new Date().toLocaleDateString('et-EE')
               };
               this.cars.push(newCar);
+              this.saveToLocalStorage();
+              this.resetForm();
             }
-            this.saveToLocalStorage();
-            this.resetForm();
           }
         },
 
