@@ -108,7 +108,16 @@
                 <p>{{ t('otherCosts') }}: €{{ c.otherCosts }}</p>
               </td>
               <td class="border border-gray-300 p-2">
-                <button @click="removeCar(index)" class="text-red-600 hover:underline">{{ t('remove') }}</button>
+                <div class="flex flex-col items-center space-y-2">
+                  <!-- Edit button with pencil icon -->
+                  <button @click="editCar(index)" class="text-blue-600 hover:text-blue-800">
+                    ✏️
+                  </button>
+                  <!-- Remove button with trash icon -->
+                  <button @click="removeCar(index)" class="text-red-600 hover:text-red-800">
+                    🗑️
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -170,7 +179,8 @@
               sortByAnnualCost: 'Sort by Annual Cost',
               sortByMonthlyCost: 'Sort by Monthly Cost',
               subCosts: 'Sub Costs per Year',
-              actions: 'Actions'
+              actions: 'Actions',
+              edit: 'Edit'
             },
             et: {
               title: 'Auto ülalpidamiskulu kalkulaator',
@@ -198,7 +208,8 @@
               sortByAnnualCost: 'Sorteeri aastase kulu järgi',
               sortByMonthlyCost: 'Sorteeri kuu kulu järgi',
               subCosts: 'Alamkulud aastas',
-              actions: 'Tegevused'
+              actions: 'Tegevused',
+              edit: 'Muuda'
             },
             ru: {
               title: 'Калькулятор расходов на автомобиль',
@@ -226,7 +237,8 @@
               sortByAnnualCost: 'Сортировать по годовым затратам',
               sortByMonthlyCost: 'Сортировать по ежемесячным затратам',
               subCosts: 'Подзатраты в год',
-              actions: 'Действия'
+              actions: 'Действия',
+              edit: 'Редактировать'
             }
           }
         }
@@ -276,13 +288,26 @@
           return this.translations[this.currentLang][key] || key;
         },
 
+        editCar(index) {
+          const carToEdit = this.cars[index];
+          this.car = { ...carToEdit }; // Populate input fields with the selected car's data
+          this.editIndex = index; // Track the index of the car being edited
+        },
+
         addCar() {
           if (this.car.name) {
-            const newCar = {
-              ...this.car,
-              savedDate: new Date().toLocaleDateString('et-EE')
-            };
-            this.cars.push(newCar);
+            if (this.editIndex !== null) {
+              // Update the existing car if in edit mode
+              this.cars[this.editIndex] = { ...this.car };
+              this.editIndex = null; // Reset edit mode
+            } else {
+              // Add a new car
+              const newCar = {
+                ...this.car,
+                savedDate: new Date().toLocaleDateString('et-EE')
+              };
+              this.cars.push(newCar);
+            }
             this.saveToLocalStorage();
             this.resetForm();
           }
@@ -315,6 +340,7 @@
             depreciation: '',
             otherCosts: ''
           };
+          this.editIndex = null; // Reset edit mode
         },
 
         fuelCost(car) {
