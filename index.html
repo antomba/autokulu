@@ -42,42 +42,92 @@
     <!-- Input Form -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="flex flex-col">
-        <input v-model="car.name" type="text" :placeholder="t('carName')" class="p-2 border rounded w-full">
+        <div class="relative">
+          <input id="car-name" v-model="car.name" type="text" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
+          <label for="car-name" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+            {{ t('carName') }}
+          </label>
+        </div>
         <p v-if="validationErrors.name" class="text-red-600 text-sm mt-1">{{ validationErrors.name }}</p>
       </div>
       <div class="flex flex-col">
-        <input v-model="car.link" type="url" :placeholder="t('webLink')" class="p-2 border rounded w-full">
+        <div class="relative">
+          <input id="car-link" v-model="car.link" type="url" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
+          <label for="car-link" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+            {{ t('webLink') }}
+          </label>
+        </div>
         <p v-if="validationErrors.link" class="text-red-600 text-sm mt-1">{{ validationErrors.link }}</p>
       </div>
       <div class="flex flex-col">
-        <input v-model.number="car.fuelConsumption" type="number" :placeholder="t('fuelConsumption')" class="p-2 border rounded w-full">
+        <div class="relative">
+          <input id="car-fuelConsumption" v-model.number="car.fuelConsumption" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
+          <label for="car-fuelConsumption" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+            {{ t('fuelConsumption') }}
+          </label>
+        </div>
         <p v-if="validationErrors.fuelConsumption" class="text-red-600 text-sm mt-1">{{ validationErrors.fuelConsumption }}</p>
       </div>
       <div class="flex flex-col">
-        <input v-model.number="car.fuelPrice" type="number" :placeholder="t('fuelPrice')" class="p-2 border rounded w-full">
+        <div class="relative">
+          <input id="car-fuelPrice" v-model.number="car.fuelPrice" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
+          <label for="car-fuelPrice" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+            {{ t('fuelPrice') }}
+          </label>
+        </div>
         <p v-if="validationErrors.fuelPrice" class="text-red-600 text-sm mt-1">{{ validationErrors.fuelPrice }}</p>
       </div>
       <div class="flex flex-col">
-        <input v-model.number="car.mileage" type="number" :placeholder="t('mileage')" class="p-2 border rounded w-full">
+        <div class="relative">
+          <input id="car-mileage" v-model.number="car.mileage" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
+          <label for="car-mileage" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+            {{ t('mileage') }}
+          </label>
+        </div>
         <p v-if="validationErrors.mileage" class="text-red-600 text-sm mt-1">{{ validationErrors.mileage }}</p>
       </div>
       <div class="flex flex-col">
-        <input v-model.number="car.insurance" type="number" :placeholder="t('insurance')" class="p-2 border rounded w-full">
+        <div class="relative">
+          <input id="car-insurance" v-model.number="car.insurance" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
+          <label for="car-insurance" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+            {{ t('insurance') }}
+          </label>
+        </div>
         <p v-if="validationErrors.insurance" class="text-red-600 text-sm mt-1">{{ validationErrors.insurance }}</p>
       </div>
       <div class="flex flex-col">
-        <input v-model.number="car.casco" type="number" :placeholder="t('casco')" class="p-2 border rounded w-full">
+        <div class="relative">
+          <input id="car-casco" v-model.number="car.casco" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
+          <label for="car-casco" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+            {{ t('casco') }}
+          </label>
+        </div>
         <p v-if="validationErrors.casco" class="text-red-600 text-sm mt-1">{{ validationErrors.casco }}</p>
       </div>
       <div class="flex flex-col">
-        <input v-model.number="car.maintenance" type="number" :placeholder="t('maintenance')" class="p-2 border rounded w-full">
+        <div class="relative">
+          <input id="car-maintenance" v-model.number="car.maintenance" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
+          <label for="car-maintenance" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+            {{ t('maintenance') }}
+          </label>
+        </div>
         <p v-if="validationErrors.maintenance" class="text-red-600 text-sm mt-1">{{ validationErrors.maintenance }}</p>
       </div>
       <div class="flex flex-col">
-        <input v-model.number="car.depreciation" type="number" :placeholder="t('depreciation')" class="p-2 border rounded w-full">
+        <div class="relative">
+          <input id="car-depreciation" v-model.number="car.depreciation" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
+          <label for="car-depreciation" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+            {{ t('depreciation') }}
+          </label>
+        </div>
       </div>
       <div class="flex flex-col">
-        <input v-model.number="car.otherCosts" type="number" :placeholder="t('otherCosts')" class="p-2 border rounded w-full">
+        <div class="relative">
+          <input id="car-otherCosts" v-model.number="car.otherCosts" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
+          <label for="car-otherCosts" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+            {{ t('otherCosts') }}
+          </label>
+        </div>
         <p v-if="validationErrors.otherCosts" class="text-red-600 text-sm mt-1">{{ validationErrors.otherCosts }}</p>
       </div>
     </div>
