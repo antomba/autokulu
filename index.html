@@ -82,7 +82,10 @@
       </div>
     </div>
 
-    <button @click="addCar" class="bg-blue-600 text-white mt-4 p-2 rounded w-full">{{ t('addCar') }}</button>
+    <!-- Add Car Button -->
+    <button @click="addCar" class="bg-blue-600 text-white mt-4 p-2 rounded w-full hover:bg-blue-500">
+      {{ t('addCar') }}
+    </button>
 
     <div class="mt-4 flex w-full items-center justify-center gap-4">
       <label for="dropzone-file"
@@ -151,8 +154,14 @@
         </table>
       </div>
 
-      <button @click="clearAll" class="mt-6 bg-red-600 text-white p-2 rounded w-full">{{ t('clear') }}</button>
-      <button @click="exportCars" class="mt-4 bg-green-700 text-white p-2 rounded w-full">{{ t('export') }}</button>
+      <!-- Clear All Button -->
+      <button @click="clearAll" class="mt-6 bg-red-600 text-white p-2 rounded w-full hover:bg-red-500">
+        {{ t('clear') }}
+      </button>
+      <!-- Export Cars Button -->
+      <button @click="exportCars" class="mt-4 bg-green-700 text-white p-2 rounded w-full hover:bg-green-600">
+        {{ t('export') }}
+      </button>
     </div>
 
   </div>
