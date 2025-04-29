@@ -604,8 +604,8 @@
           // Check if the URL is valid
           isValidURL(url) {
             try {
-              new URL(url);
-              return true;
+              const parsedUrl = new URL(url);
+              return ["http:", "https:"].includes(parsedUrl.protocol); // Allow only HTTP/HTTPS
             } catch (_) {
               return false;
             }
