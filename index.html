@@ -1,535 +1,742 @@
 <!DOCTYPE html>
 <html lang="et">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Auto kogukulude arvutuse vahend.">
-  <title>Auto kulude kalkulaator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <style>
-    th.cursor-pointer {
-      cursor: pointer;
-      user-select: none;
-    }
-  </style>
-</head>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-5WS1EH8N9H"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag() { dataLayer.push(arguments); }
-  gtag('js', new Date());
-  gtag('config', 'G-5WS1EH8N9H');
-</script>
-
-<body class="bg-gray-100 min-h-screen p-6">
-  <div id="app" class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-
-    <!-- Title and Language Selector in one row -->
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">{{ t('title') }}</h1>
-      <label for="language" class="sr-only">Vali keel</label>
-      <select id="language" v-model="currentLang" class="p-2 border rounded">
-        <option value="et">🇪🇪 Eesti</option>
-        <option value="en">🇬🇧 English</option>
-        <option value="ru">🇷🇺 Русский</option>
-      </select>
-    </div>
-
-    <!-- Input Form -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="flex flex-col">
-        <div class="relative">
-          <input id="car-name" v-model="car.name" type="text" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
-          <label for="car-name" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-            {{ t('carName') }}
-          </label>
-        </div>
-        <p v-if="validationErrors.name" class="text-red-600 text-sm mt-1">{{ validationErrors.name }}</p>
-      </div>
-      <div class="flex flex-col">
-        <div class="relative">
-          <input id="car-link" v-model="car.link" type="url" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
-          <label for="car-link" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-            {{ t('webLink') }}
-          </label>
-        </div>
-        <p v-if="validationErrors.link" class="text-red-600 text-sm mt-1">{{ validationErrors.link }}</p>
-      </div>
-      <div class="flex flex-col">
-        <div class="relative">
-          <input id="car-fuelConsumption" v-model.number="car.fuelConsumption" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
-          <label for="car-fuelConsumption" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-            {{ t('fuelConsumption') }}
-          </label>
-        </div>
-        <p v-if="validationErrors.fuelConsumption" class="text-red-600 text-sm mt-1">{{ validationErrors.fuelConsumption }}</p>
-      </div>
-      <div class="flex flex-col">
-        <div class="relative">
-          <input id="car-fuelPrice" v-model.number="car.fuelPrice" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
-          <label for="car-fuelPrice" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-            {{ t('fuelPrice') }}
-          </label>
-        </div>
-        <p v-if="validationErrors.fuelPrice" class="text-red-600 text-sm mt-1">{{ validationErrors.fuelPrice }}</p>
-      </div>
-      <div class="flex flex-col">
-        <div class="relative">
-          <input id="car-mileage" v-model.number="car.mileage" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
-          <label for="car-mileage" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-            {{ t('mileage') }}
-          </label>
-        </div>
-        <p v-if="validationErrors.mileage" class="text-red-600 text-sm mt-1">{{ validationErrors.mileage }}</p>
-      </div>
-      <div class="flex flex-col">
-        <div class="relative">
-          <input id="car-insurance" v-model.number="car.insurance" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
-          <label for="car-insurance" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-            {{ t('insurance') }}
-          </label>
-        </div>
-        <p v-if="validationErrors.insurance" class="text-red-600 text-sm mt-1">{{ validationErrors.insurance }}</p>
-      </div>
-      <div class="flex flex-col">
-        <div class="relative">
-          <input id="car-casco" v-model.number="car.casco" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
-          <label for="car-casco" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-            {{ t('casco') }}
-          </label>
-        </div>
-        <p v-if="validationErrors.casco" class="text-red-600 text-sm mt-1">{{ validationErrors.casco }}</p>
-      </div>
-      <div class="flex flex-col">
-        <div class="relative">
-          <input id="car-maintenance" v-model.number="car.maintenance" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
-          <label for="car-maintenance" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-            {{ t('maintenance') }}
-          </label>
-        </div>
-        <p v-if="validationErrors.maintenance" class="text-red-600 text-sm mt-1">{{ validationErrors.maintenance }}</p>
-      </div>
-      <div class="flex flex-col">
-        <div class="relative">
-          <input id="car-depreciation" v-model.number="car.depreciation" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
-          <label for="car-depreciation" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-            {{ t('depreciation') }}
-          </label>
-        </div>
-      </div>
-      <div class="flex flex-col">
-        <div class="relative">
-          <input id="car-otherCosts" v-model.number="car.otherCosts" type="number" placeholder=" " class="peer p-2 pt-6 border rounded w-full">
-          <label for="car-otherCosts" class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-            {{ t('otherCosts') }}
-          </label>
-        </div>
-        <p v-if="validationErrors.otherCosts" class="text-red-600 text-sm mt-1">{{ validationErrors.otherCosts }}</p>
-      </div>
-    </div>
-
-    <!-- Add Car Button -->
-    <button @click="addCar" class="bg-blue-600 text-white mt-4 p-2 rounded w-full hover:bg-blue-500">
-      {{ t('addCar') }}
-    </button>
-
-    <div class="mt-4 flex w-full items-center justify-center gap-4">
-      <label for="dropzone-file"
-        class="flex h-10 w-full cursor-pointer flex-col items-center justify-center rounded border-dashed border-green-300 bg-green-500 text-white hover:bg-green-400 dark:border-green-600 dark:bg-green-700 dark:hover:border-green-500 dark:hover:bg-green-600 dark:hover:bg-green-800">
-        {{ t('import') }}
-        <input id="dropzone-file" type="file" @change="importCars" accept=".json" class="hidden" />
-      </label>
-    </div>
-
-    <!-- Saved Cars Section -->
-    <div v-if="cars.length" class="mt-8">
-      <h2 class="text-xl font-semibold mb-4">{{ t('savedCars') }}</h2>
-
-
-
-      <!-- Cars Table -->
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr class="bg-gray-100">
-              <th @click="sortBy('name')" class="border border-gray-300 p-2 cursor-pointer">
-                {{ t('carName') }}
-                <span v-if="sortKey === 'name'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
-              </th>
-              <th @click="sortBy('annualCost')" class="border border-gray-300 p-2 cursor-pointer">
-                {{ t('annualCost') }}
-                <span v-if="sortKey === 'annualCost'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
-              </th>
-              <th @click="sortBy('monthlyCost')" class="border border-gray-300 p-2 cursor-pointer">
-                {{ t('monthlyCost') }}
-                <span v-if="sortKey === 'monthlyCost'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
-              </th>
-              <th class="border border-gray-300 p-2">{{ t('subCosts') }}</th>
-              <th class="border border-gray-300 p-2">{{ t('actions') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(c, index) in sortedCars" :key="index" class="hover:bg-gray-50">
-              <td class="border border-gray-300 p-2">
-                <a :href="c.link" target="_blank" class="text-blue-700 hover:underline">{{ c.name }}</a>
-              </td>
-              <td class="border border-gray-300 p-2">€{{ calculateAnnualCost(c).toFixed(2) }}</td>
-              <td class="border border-gray-300 p-2">€{{ (calculateAnnualCost(c) / 12).toFixed(2) }}</td>
-              <td class="border border-gray-300 p-2 text-sm">
-                <p>{{ t('fuelCost') }}: €{{ fuelCost(c).toFixed(2) }}</p>
-                <p>{{ t('insurance') }}: €{{ c.insurance }}</p>
-                <p>{{ t('casco') }}: €{{ c.casco }}</p>
-                <p>{{ t('maintenance') }}: €{{ c.maintenance }}</p>
-                <p>{{ t('depreciation') }}: €{{ c.depreciation }}</p>
-                <p>{{ t('otherCosts') }}: €{{ c.otherCosts }}</p>
-              </td>
-              <td class="border border-gray-300 p-2">
-                <div class="flex flex-col items-center space-y-2">
-                  <!-- Edit button with pencil icon -->
-                  <button @click="editCar(index)" class="text-blue-600 hover:text-blue-800">
-                    ✏️
-                  </button>
-                  <!-- Remove button with trash icon -->
-                  <button @click="removeCar(index)" class="text-red-600 hover:text-red-800">
-                    🗑️
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Clear All Button -->
-      <button @click="clearAll" class="mt-6 bg-red-600 text-white p-2 rounded w-full hover:bg-red-500">
-        {{ t('clear') }}
-      </button>
-      <!-- Export Cars Button -->
-      <button @click="exportCars" class="mt-4 bg-green-700 text-white p-2 rounded w-full hover:bg-green-600">
-        {{ t('export') }}
-      </button>
-    </div>
-
-  </div>
-
-  <script>
-    const { createApp, watch } = Vue;
-
-    createApp({
-      data() {
-        return {
-          car: {
-            name: '',
-            link: '',
-            fuelConsumption: '',
-            fuelPrice: '',
-            mileage: '',
-            insurance: '',
-            casco: '',
-            maintenance: '',
-            depreciation: '',
-            otherCosts: ''
-          },
-          cars: JSON.parse(localStorage.getItem('cars')) || [],
-          validationErrors: {}, // Object to store validation errors
-          currentLang: 'et',
-          sortKey: null, // Key to sort by (e.g., 'annualCost' or 'monthlyCost')
-          sortOrder: 'asc', // Sorting order: 'asc' or 'desc'
-          translations: {
-            en: {
-              title: 'Car ownership cost calculator',
-              addCar: 'Add Car',
-              savedCars: 'Saved Cars',
-              saved: 'Saved',
-              annualCost: 'Annual Total Cost',
-              monthlyCost: 'Monthly Cost',
-              fuelCost: 'Fuel Cost',
-              insurance: 'Insurance',
-              maintenance: 'Maintenance',
-              depreciation: 'Depreciation',
-              otherCosts: 'Other Costs',
-              remove: 'Remove',
-              clear: 'Clear All',
-              carName: 'Car Name',
-              webLink: 'Web Link',
-              fuelConsumption: 'Fuel Consumption (L/100km)',
-              fuelPrice: 'Fuel Price (€/L)',
-              mileage: 'Mileage per Year (km)',
-              casco: 'Casco Insurance',
-              export: 'Export Cars',
-              import: 'Import Cars',
-              invalidFile: 'Invalid file format. Please upload a valid JSON file.',
-              sortByAnnualCost: 'Sort by Annual Cost',
-              sortByMonthlyCost: 'Sort by Monthly Cost',
-              subCosts: 'Sub Costs per Year',
-              actions: 'Actions',
-              edit: 'Edit',
-              carNameRequired: 'Car name is required.',
-              invalidURL: 'Please enter a valid URL.',
-              positiveNumber: 'Please enter a positive number.'
-            },
-            et: {
-              title: 'Auto ülalpidamiskulu kalkulaator',
-              addCar: 'Lisa auto',
-              savedCars: 'Salvestatud autod',
-              saved: 'Salvestatud',
-              annualCost: 'Kogukulu aastas',
-              monthlyCost: 'Kulu kuus',
-              fuelCost: 'Kütusekulu',
-              insurance: 'Kindlustus',
-              maintenance: 'Hooldus',
-              depreciation: 'Amortisatsioon',
-              otherCosts: 'Muud kulud',
-              remove: 'Eemalda',
-              clear: 'Kustuta kõik',
-              carName: 'Auto nimi',
-              webLink: 'Veebileht',
-              fuelConsumption: 'Kütusekulu (L/100km)',
-              fuelPrice: 'Kütuse hind (€/L)',
-              mileage: 'Läbisõit aastas (km)',
-              casco: 'Kasko kindlustus',
-              export: 'Ekspordi autod',
-              import: 'Impordi autod',
-              invalidFile: 'Vigane failivorming. Palun laadige üles sobilik JSON-fail.',
-              sortByAnnualCost: 'Sorteeri aastase kulu järgi',
-              sortByMonthlyCost: 'Sorteeri kuu kulu järgi',
-              subCosts: 'Alamkulud aastas',
-              actions: 'Tegevused',
-              edit: 'Muuda',
-              carNameRequired: 'Auto nimi on kohustuslik.',
-              invalidURL: 'Palun sisestage kehtiv URL.',
-              positiveNumber: 'Palun sisestage positiivne number.'
-            },
-            ru: {
-              title: 'Калькулятор расходов на автомобиль',
-              addCar: 'Добавить авто',
-              savedCars: 'Сохранённые авто',
-              saved: 'Сохранено',
-              annualCost: 'Затраты в год',
-              monthlyCost: 'Затраты в месяц',
-              fuelCost: 'Топливо',
-              insurance: 'Страховка',
-              maintenance: 'Обслуживание',
-              depreciation: 'Амортизация',
-              otherCosts: 'Прочее',
-              remove: 'Удалить',
-              clear: 'Удалить все',
-              carName: 'Название авто',
-              webLink: 'Ссылка',
-              fuelConsumption: 'Расход топлива (л/100км)',
-              fuelPrice: 'Цена топлива (€/л)',
-              mileage: 'Пробег в год (км)',
-              casco: 'Каско',
-              export: 'Экспортировать авто',
-              import: 'Импортировать авто',
-              invalidFile: 'Неверный формат файла. Пожалуйста, загрузите подходящий JSON-файл.',
-              sortByAnnualCost: 'Сортировать по годовым затратам',
-              sortByMonthlyCost: 'Сортировать по ежемесячным затратам',
-              subCosts: 'Подзатраты в год',
-              actions: 'Действия',
-              edit: 'Редактировать',
-              carNameRequired: 'Название автомобиля обязательно.',
-              invalidURL: 'Пожалуйста, введите действительный URL.',
-              positiveNumber: 'Пожалуйста, введите положительное число.'
-            }
-          }
-        }
-      },
-
-      created() {
-        const savedLang = localStorage.getItem('preferredLang');
-        if (savedLang) this.currentLang = savedLang;
-      },
-
-      watch: {
-        currentLang(newLang) {
-          localStorage.setItem('preferredLang', newLang);
-        }
-      },
-
-      computed: {
-        sortedCars() {
-          if (!this.sortKey) {
-            return this.cars;
-          }
-          return [...this.cars].sort((a, b) => {
-            let aValue, bValue;
-
-            if (this.sortKey === 'annualCost') {
-              aValue = this.calculateAnnualCost(a);
-              bValue = this.calculateAnnualCost(b);
-            } else if (this.sortKey === 'monthlyCost') {
-              aValue = this.calculateAnnualCost(a) / 12;
-              bValue = this.calculateAnnualCost(b) / 12;
-            } else {
-              aValue = a[this.sortKey]?.toString().toLowerCase() || '';
-              bValue = b[this.sortKey]?.toString().toLowerCase() || '';
-            }
-
-            if (this.sortOrder === 'asc') {
-              return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
-            } else {
-              return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
-            }
-          });
-        }
-      },
-
-      methods: {
-        t(key) {
-          return this.translations[this.currentLang][key] || key;
-        },
-
-        editCar(index) {
-          const carToEdit = this.cars[index];
-          this.car = { ...carToEdit }; // Populate input fields with the selected car's data
-          this.editIndex = index; // Track the index of the car being edited
-        },
-
-        validateForm() {
-          this.validationErrors = {}; // Reset errors
-
-          if (!this.car.name) {
-            this.validationErrors.name = this.t('carNameRequired');
-          }
-          if (this.car.link && !this.isValidURL(this.car.link)) {
-            this.validationErrors.link = this.t('invalidURL');
-          }
-          if (this.car.fuelConsumption < 0) {
-            this.validationErrors.fuelConsumption = this.t('positiveNumber');
-          }
-          if (this.car.fuelPrice < 0) {
-            this.validationErrors.fuelPrice = this.t('positiveNumber');
-          }
-          if (this.car.mileage < 0) {
-            this.validationErrors.mileage = this.t('positiveNumber');
-          }
-          if (this.car.insurance < 0) {
-            this.validationErrors.insurance = this.t('positiveNumber');
-          }
-          if (this.car.casco < 0) {
-            this.validationErrors.casco = this.t('positiveNumber');
-          }
-          if (this.car.maintenance < 0) {
-            this.validationErrors.maintenance = this.t('positiveNumber');
-          }
-          if (this.car.otherCosts < 0) {
-            this.validationErrors.otherCosts = this.t('positiveNumber');
-          }
-
-          return Object.keys(this.validationErrors).length === 0; // Return true if no errors
-        },
-
-        isValidURL(url) {
-          try {
-            new URL(url);
-            return true;
-          } catch (_) {
-            return false;
-          }
-        },
-
-        addCar() {
-          if (this.validateForm()) {
-            if (this.car.name) {
-              const newCar = {
-                ...this.car,
-                savedDate: new Date().toLocaleDateString('et-EE')
-              };
-              this.cars.push(newCar);
-              this.saveToLocalStorage();
-              this.resetForm();
-            }
-          }
-        },
-
-        removeCar(index) {
-          this.cars.splice(index, 1);
-          this.saveToLocalStorage();
-        },
-
-        clearAll() {
-          this.cars = [];
-          localStorage.removeItem('cars');
-        },
-
-        saveToLocalStorage() {
-          localStorage.setItem('cars', JSON.stringify(this.cars));
-        },
-
-        resetForm() {
-          this.car = {
-            name: '',
-            link: '',
-            fuelConsumption: '',
-            fuelPrice: '',
-            mileage: '',
-            insurance: '',
-            casco: '',
-            maintenance: '',
-            depreciation: '',
-            otherCosts: ''
-          };
-          this.editIndex = null; // Reset edit mode
-        },
-
-        fuelCost(car) {
-          return ((car.fuelConsumption / 100) * car.mileage * car.fuelPrice) || 0;
-        },
-
-        calculateAnnualCost(car) {
-          return this.fuelCost(car) +
-            (parseFloat(car.insurance) || 0) +
-            (parseFloat(car.casco) || 0) +
-            (parseFloat(car.maintenance) || 0) +
-            (parseFloat(car.depreciation) || 0) +
-            (parseFloat(car.otherCosts) || 0);
-        },
-
-        exportCars() {
-          const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.cars));
-          const downloadAnchorNode = document.createElement('a');
-          downloadAnchorNode.setAttribute("href", dataStr);
-          downloadAnchorNode.setAttribute("download", "cars.json");
-          document.body.appendChild(downloadAnchorNode);
-          downloadAnchorNode.click();
-          downloadAnchorNode.remove();
-        },
-
-        importCars(event) {
-          const file = event.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              try {
-                const importedCars = JSON.parse(e.target.result);
-                this.cars = importedCars;
-                this.saveToLocalStorage();
-              } catch (error) {
-                alert(this.t('invalidFile'));
-              }
-            };
-            reader.readAsText(file);
-          }
-        },
-
-        sortBy(key) {
-          if (this.sortKey === key) {
-            // Toggle sort order if the same key is clicked
-            this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-          } else {
-            // Set new sort key and default to ascending order
-            this.sortKey = key;
-            this.sortOrder = 'asc';
-          }
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Auto kogukulude arvutuse vahend." />
+    <title>Auto kulude kalkulaator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      th.cursor-pointer {
+        cursor: pointer;
+        user-select: none;
       }
-    }).mount('#app');
-  </script>
-</body>
+    </style>
+  </head>
 
+  <!-- Google tag (gtag.js) -->
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=G-5WS1EH8N9H"
+  ></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+    gtag("config", "G-5WS1EH8N9H");
+  </script>
+
+  <body class="bg-gray-100 min-h-screen p-6">
+    <div id="app" class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+      <!-- Title and Language Selector in one row -->
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">{{ t('title') }}</h1>
+        <label for="language" class="sr-only">Vali keel</label>
+        <select id="language" v-model="currentLang" class="p-2 border rounded">
+          <option value="et">🇪🇪 Eesti</option>
+          <option value="en">🇬🇧 English</option>
+          <option value="ru">🇷🇺 Русский</option>
+        </select>
+      </div>
+
+      <!-- Input Form -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex flex-col">
+          <div class="relative">
+            <input
+              id="car-name"
+              v-model="car.name"
+              type="text"
+              placeholder=" "
+              class="peer p-2 pt-6 border rounded w-full"
+            />
+            <label
+              for="car-name"
+              class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
+            >
+              {{ t('carName') }}
+            </label>
+          </div>
+          <p v-if="validationErrors.name" class="text-red-600 text-sm mt-1">
+            {{ validationErrors.name }}
+          </p>
+        </div>
+        <div class="flex flex-col">
+          <div class="relative">
+            <input
+              id="car-link"
+              v-model="car.link"
+              type="url"
+              placeholder=" "
+              class="peer p-2 pt-6 border rounded w-full"
+            />
+            <label
+              for="car-link"
+              class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
+            >
+              {{ t('webLink') }}
+            </label>
+          </div>
+          <p v-if="validationErrors.link" class="text-red-600 text-sm mt-1">
+            {{ validationErrors.link }}
+          </p>
+        </div>
+        <div class="flex flex-col">
+          <div class="relative">
+            <input
+              id="car-fuelConsumption"
+              v-model.number="car.fuelConsumption"
+              type="number"
+              placeholder=" "
+              class="peer p-2 pt-6 border rounded w-full"
+            />
+            <label
+              for="car-fuelConsumption"
+              class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
+            >
+              {{ t('fuelConsumption') }}
+            </label>
+          </div>
+          <p
+            v-if="validationErrors.fuelConsumption"
+            class="text-red-600 text-sm mt-1"
+          >
+            {{ validationErrors.fuelConsumption }}
+          </p>
+        </div>
+        <div class="flex flex-col">
+          <div class="relative">
+            <input
+              id="car-fuelPrice"
+              v-model.number="car.fuelPrice"
+              type="number"
+              placeholder=" "
+              class="peer p-2 pt-6 border rounded w-full"
+            />
+            <label
+              for="car-fuelPrice"
+              class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
+            >
+              {{ t('fuelPrice') }}
+            </label>
+          </div>
+          <p
+            v-if="validationErrors.fuelPrice"
+            class="text-red-600 text-sm mt-1"
+          >
+            {{ validationErrors.fuelPrice }}
+          </p>
+        </div>
+        <div class="flex flex-col">
+          <div class="relative">
+            <input
+              id="car-mileage"
+              v-model.number="car.mileage"
+              type="number"
+              placeholder=" "
+              class="peer p-2 pt-6 border rounded w-full"
+            />
+            <label
+              for="car-mileage"
+              class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
+            >
+              {{ t('mileage') }}
+            </label>
+          </div>
+          <p v-if="validationErrors.mileage" class="text-red-600 text-sm mt-1">
+            {{ validationErrors.mileage }}
+          </p>
+        </div>
+        <div class="flex flex-col">
+          <div class="relative">
+            <input
+              id="car-insurance"
+              v-model.number="car.insurance"
+              type="number"
+              placeholder=" "
+              class="peer p-2 pt-6 border rounded w-full"
+            />
+            <label
+              for="car-insurance"
+              class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
+            >
+              {{ t('insurance') }}
+            </label>
+          </div>
+          <p
+            v-if="validationErrors.insurance"
+            class="text-red-600 text-sm mt-1"
+          >
+            {{ validationErrors.insurance }}
+          </p>
+        </div>
+        <div class="flex flex-col">
+          <div class="relative">
+            <input
+              id="car-casco"
+              v-model.number="car.casco"
+              type="number"
+              placeholder=" "
+              class="peer p-2 pt-6 border rounded w-full"
+            />
+            <label
+              for="car-casco"
+              class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
+            >
+              {{ t('casco') }}
+            </label>
+          </div>
+          <p v-if="validationErrors.casco" class="text-red-600 text-sm mt-1">
+            {{ validationErrors.casco }}
+          </p>
+        </div>
+        <div class="flex flex-col">
+          <div class="relative">
+            <input
+              id="car-maintenance"
+              v-model.number="car.maintenance"
+              type="number"
+              placeholder=" "
+              class="peer p-2 pt-6 border rounded w-full"
+            />
+            <label
+              for="car-maintenance"
+              class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
+            >
+              {{ t('maintenance') }}
+            </label>
+          </div>
+          <p
+            v-if="validationErrors.maintenance"
+            class="text-red-600 text-sm mt-1"
+          >
+            {{ validationErrors.maintenance }}
+          </p>
+        </div>
+        <div class="flex flex-col">
+          <div class="relative">
+            <input
+              id="car-depreciation"
+              v-model.number="car.depreciation"
+              type="number"
+              placeholder=" "
+              class="peer p-2 pt-6 border rounded w-full"
+            />
+            <label
+              for="car-depreciation"
+              class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
+            >
+              {{ t('depreciation') }}
+            </label>
+          </div>
+        </div>
+        <div class="flex flex-col">
+          <div class="relative">
+            <input
+              id="car-otherCosts"
+              v-model.number="car.otherCosts"
+              type="number"
+              placeholder=" "
+              class="peer p-2 pt-6 border rounded w-full"
+            />
+            <label
+              for="car-otherCosts"
+              class="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400"
+            >
+              {{ t('otherCosts') }}
+            </label>
+          </div>
+          <p
+            v-if="validationErrors.otherCosts"
+            class="text-red-600 text-sm mt-1"
+          >
+            {{ validationErrors.otherCosts }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Add Car Button -->
+      <button
+        @click="addCar"
+        class="bg-blue-600 text-white mt-4 p-2 rounded w-full hover:bg-blue-500"
+      >
+        {{ t('addCar') }}
+      </button>
+
+      <div class="mt-4 flex w-full items-center justify-center gap-4">
+        <label
+          for="dropzone-file"
+          class="flex h-10 w-full cursor-pointer flex-col items-center justify-center rounded border-dashed border-green-300 bg-green-500 text-white hover:bg-green-400 dark:border-green-600 dark:bg-green-700 dark:hover:border-green-500 dark:hover:bg-green-600 dark:hover:bg-green-800"
+        >
+          {{ t('import') }}
+          <input
+            id="dropzone-file"
+            type="file"
+            @change="importCars"
+            accept=".json"
+            class="hidden"
+          />
+        </label>
+      </div>
+
+      <!-- Saved Cars Section -->
+      <div v-if="cars.length" class="mt-8">
+        <h2 class="text-xl font-semibold mb-4">{{ t('savedCars') }}</h2>
+
+        <!-- Cars Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr class="bg-gray-100">
+                <th
+                  @click="sortBy('name')"
+                  class="border border-gray-300 p-2 cursor-pointer"
+                >
+                  {{ t('carName') }}
+                  <span v-if="sortKey === 'name'"
+                    >{{ sortOrder === 'asc' ? '↑' : '↓' }}</span
+                  >
+                </th>
+                <th
+                  @click="sortBy('annualCost')"
+                  class="border border-gray-300 p-2 cursor-pointer"
+                >
+                  {{ t('annualCost') }}
+                  <span v-if="sortKey === 'annualCost'"
+                    >{{ sortOrder === 'asc' ? '↑' : '↓' }}</span
+                  >
+                </th>
+                <th
+                  @click="sortBy('monthlyCost')"
+                  class="border border-gray-300 p-2 cursor-pointer"
+                >
+                  {{ t('monthlyCost') }}
+                  <span v-if="sortKey === 'monthlyCost'"
+                    >{{ sortOrder === 'asc' ? '↑' : '↓' }}</span
+                  >
+                </th>
+                <th class="border border-gray-300 p-2">{{ t('subCosts') }}</th>
+                <th class="border border-gray-300 p-2">{{ t('actions') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(c, index) in sortedCars"
+                :key="index"
+                class="hover:bg-gray-50"
+              >
+                <td class="border border-gray-300 p-2">
+                  <a
+                    :href="c.link"
+                    target="_blank"
+                    class="text-blue-700 hover:underline"
+                    >{{ c.name }}</a
+                  >
+                </td>
+                <td class="border border-gray-300 p-2">
+                  €{{ calculateAnnualCost(c).toFixed(2) }}
+                </td>
+                <td class="border border-gray-300 p-2">
+                  €{{ (calculateAnnualCost(c) / 12).toFixed(2) }}
+                </td>
+                <td class="border border-gray-300 p-2 text-sm">
+                  <p>{{ t('fuelCost') }}: €{{ fuelCost(c).toFixed(2) }}</p>
+                  <p>{{ t('insurance') }}: €{{ c.insurance }}</p>
+                  <p>{{ t('casco') }}: €{{ c.casco }}</p>
+                  <p>{{ t('maintenance') }}: €{{ c.maintenance }}</p>
+                  <p>{{ t('depreciation') }}: €{{ c.depreciation }}</p>
+                  <p>{{ t('otherCosts') }}: €{{ c.otherCosts }}</p>
+                </td>
+                <td class="border border-gray-300 p-2">
+                  <div class="flex flex-col items-center space-y-2">
+                    <!-- Edit button with pencil icon -->
+                    <button
+                      @click="editCar(index)"
+                      class="text-blue-600 hover:text-blue-800"
+                    >
+                      ✏️
+                    </button>
+                    <!-- Remove button with trash icon -->
+                    <button
+                      @click="removeCar(index)"
+                      class="text-red-600 hover:text-red-800"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Clear All Button -->
+        <button
+          @click="clearAll"
+          class="mt-6 bg-red-600 text-white p-2 rounded w-full hover:bg-red-500"
+        >
+          {{ t('clear') }}
+        </button>
+        <!-- Export Cars Button -->
+        <button
+          @click="exportCars"
+          class="mt-4 bg-green-700 text-white p-2 rounded w-full hover:bg-green-600"
+        >
+          {{ t('export') }}
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const { createApp, watch } = Vue;
+
+      createApp({
+        data() {
+          return {
+            car: {
+              name: "",
+              link: "",
+              fuelConsumption: "",
+              fuelPrice: "",
+              mileage: "",
+              insurance: "",
+              casco: "",
+              maintenance: "",
+              depreciation: "",
+              otherCosts: "",
+            },
+            cars: JSON.parse(localStorage.getItem("cars")) || [],
+            validationErrors: {}, // Object to store validation errors
+            currentLang: "et",
+            sortKey: null, // Key to sort by (e.g., 'annualCost' or 'monthlyCost')
+            sortOrder: "asc", // Sorting order: 'asc' or 'desc'
+            translations: {
+              en: {
+                title: "Car ownership cost calculator",
+                addCar: "Add Car",
+                savedCars: "Saved Cars",
+                saved: "Saved",
+                annualCost: "Annual Total Cost",
+                monthlyCost: "Monthly Cost",
+                fuelCost: "Fuel Cost",
+                insurance: "Insurance",
+                maintenance: "Maintenance",
+                depreciation: "Depreciation",
+                otherCosts: "Other Costs",
+                remove: "Remove",
+                clear: "Clear All",
+                carName: "Car Name",
+                webLink: "Web Link",
+                fuelConsumption: "Fuel Consumption (L/100km)",
+                fuelPrice: "Fuel Price (€/L)",
+                mileage: "Mileage per Year (km)",
+                casco: "Casco Insurance",
+                export: "Export Cars",
+                import: "Import Cars",
+                invalidFile:
+                  "Invalid file format. Please upload a valid JSON file.",
+                sortByAnnualCost: "Sort by Annual Cost",
+                sortByMonthlyCost: "Sort by Monthly Cost",
+                subCosts: "Sub Costs per Year",
+                actions: "Actions",
+                edit: "Edit",
+                carNameRequired: "Car name is required.",
+                invalidURL: "Please enter a valid URL.",
+                positiveNumber: "Please enter a positive number.",
+              },
+              et: {
+                title: "Auto ülalpidamiskulu kalkulaator",
+                addCar: "Lisa auto",
+                savedCars: "Salvestatud autod",
+                saved: "Salvestatud",
+                annualCost: "Kogukulu aastas",
+                monthlyCost: "Kulu kuus",
+                fuelCost: "Kütusekulu",
+                insurance: "Kindlustus",
+                maintenance: "Hooldus",
+                depreciation: "Amortisatsioon",
+                otherCosts: "Muud kulud",
+                remove: "Eemalda",
+                clear: "Kustuta kõik",
+                carName: "Auto nimi",
+                webLink: "Veebileht",
+                fuelConsumption: "Kütusekulu (L/100km)",
+                fuelPrice: "Kütuse hind (€/L)",
+                mileage: "Läbisõit aastas (km)",
+                casco: "Kasko kindlustus",
+                export: "Ekspordi autod",
+                import: "Impordi autod",
+                invalidFile:
+                  "Vigane failivorming. Palun laadige üles sobilik JSON-fail.",
+                sortByAnnualCost: "Sorteeri aastase kulu järgi",
+                sortByMonthlyCost: "Sorteeri kuu kulu järgi",
+                subCosts: "Alamkulud aastas",
+                actions: "Tegevused",
+                edit: "Muuda",
+                carNameRequired: "Auto nimi on kohustuslik.",
+                invalidURL: "Palun sisestage kehtiv URL.",
+                positiveNumber: "Palun sisestage positiivne number.",
+              },
+              ru: {
+                title: "Калькулятор расходов на автомобиль",
+                addCar: "Добавить авто",
+                savedCars: "Сохранённые авто",
+                saved: "Сохранено",
+                annualCost: "Затраты в год",
+                monthlyCost: "Затраты в месяц",
+                fuelCost: "Топливо",
+                insurance: "Страховка",
+                maintenance: "Обслуживание",
+                depreciation: "Амортизация",
+                otherCosts: "Прочее",
+                remove: "Удалить",
+                clear: "Удалить все",
+                carName: "Название авто",
+                webLink: "Ссылка",
+                fuelConsumption: "Расход топлива (л/100км)",
+                fuelPrice: "Цена топлива (€/л)",
+                mileage: "Пробег в год (км)",
+                casco: "Каско",
+                export: "Экспортировать авто",
+                import: "Импортировать авто",
+                invalidFile:
+                  "Неверный формат файла. Пожалуйста, загрузите подходящий JSON-файл.",
+                sortByAnnualCost: "Сортировать по годовым затратам",
+                sortByMonthlyCost: "Сортировать по ежемесячным затратам",
+                subCosts: "Подзатраты в год",
+                actions: "Действия",
+                edit: "Редактировать",
+                carNameRequired: "Название автомобиля обязательно.",
+                invalidURL: "Пожалуйста, введите действительный URL.",
+                positiveNumber: "Пожалуйста, введите положительное число.",
+              },
+            },
+          };
+        },
+
+        created() {
+          const savedLang = localStorage.getItem("preferredLang");
+          if (savedLang) this.currentLang = savedLang;
+        },
+
+        watch: {
+          currentLang(newLang) {
+            localStorage.setItem("preferredLang", newLang);
+          },
+        },
+
+        computed: {
+          sortedCars() {
+            if (!this.sortKey) {
+              return this.cars;
+            }
+            return [...this.cars].sort((a, b) => {
+              let aValue, bValue;
+
+              if (this.sortKey === "annualCost") {
+                aValue = this.calculateAnnualCost(a);
+                bValue = this.calculateAnnualCost(b);
+              } else if (this.sortKey === "monthlyCost") {
+                aValue = this.calculateAnnualCost(a) / 12;
+                bValue = this.calculateAnnualCost(b) / 12;
+              } else {
+                aValue = a[this.sortKey]?.toString().toLowerCase() || "";
+                bValue = b[this.sortKey]?.toString().toLowerCase() || "";
+              }
+
+              if (this.sortOrder === "asc") {
+                return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+              } else {
+                return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+              }
+            });
+          },
+        },
+
+        methods: {
+          
+          t(key) {
+            return this.translations[this.currentLang][key] || key;
+          },
+          // Edit car details
+          editCar(index) {
+            const carToEdit = this.cars[index];
+            this.car = { ...carToEdit }; // Populate input fields with the selected car's data
+            this.editIndex = index; // Track the index of the car being edited
+          },
+          // Validate form inputs
+          validateForm() {
+            this.validationErrors = {}; // Reset errors
+
+            if (!this.car.name) {
+              this.validationErrors.name = this.t("carNameRequired");
+            }
+            if (this.car.link && !this.isValidURL(this.car.link)) {
+              this.validationErrors.link = this.t("invalidURL");
+            }
+            if (this.car.fuelConsumption < 0) {
+              this.validationErrors.fuelConsumption = this.t("positiveNumber");
+            }
+            if (this.car.fuelPrice < 0) {
+              this.validationErrors.fuelPrice = this.t("positiveNumber");
+            }
+            if (this.car.mileage < 0) {
+              this.validationErrors.mileage = this.t("positiveNumber");
+            }
+            if (this.car.insurance < 0) {
+              this.validationErrors.insurance = this.t("positiveNumber");
+            }
+            if (this.car.casco < 0) {
+              this.validationErrors.casco = this.t("positiveNumber");
+            }
+            if (this.car.maintenance < 0) {
+              this.validationErrors.maintenance = this.t("positiveNumber");
+            }
+            if (this.car.otherCosts < 0) {
+              this.validationErrors.otherCosts = this.t("positiveNumber");
+            }
+
+            return Object.keys(this.validationErrors).length === 0; // Return true if no errors
+          },
+          // Check if the URL is valid
+          isValidURL(url) {
+            try {
+              new URL(url);
+              return true;
+            } catch (_) {
+              return false;
+            }
+          },
+          // Add a new car or update an existing one
+          addCar() {
+            if (this.validateForm()) {
+              if (this.car.name) {
+                const newCar = {
+                  ...this.car,
+                  savedDate: new Date().toLocaleDateString("et-EE"),
+                };
+                this.cars.push(newCar);
+                this.saveToLocalStorage();
+                this.resetForm();
+              }
+            }
+          },
+          // Remove a car from the list
+          removeCar(index) {
+            this.cars.splice(index, 1);
+            this.saveToLocalStorage();
+          },
+          // Clear all cars from the list and local storage
+          clearAll() {
+            this.cars = [];
+            localStorage.removeItem("cars");
+          },
+          // Save cars to local storage
+          saveToLocalStorage() {
+            localStorage.setItem("cars", JSON.stringify(this.cars));
+          },
+          // Reset the form fields
+          resetForm() {
+            this.car = {
+              name: "",
+              link: "",
+              fuelConsumption: "",
+              fuelPrice: "",
+              mileage: "",
+              insurance: "",
+              casco: "",
+              maintenance: "",
+              depreciation: "",
+              otherCosts: "",
+            };
+            this.editIndex = null; // Reset edit mode
+          },
+          // Calculate fuel cost based on consumption, mileage, and price
+          fuelCost(car) {
+            return (
+              (car.fuelConsumption / 100) * car.mileage * car.fuelPrice || 0
+            );
+          },
+          // Calculate annual cost of the car
+          calculateAnnualCost(car) {
+            return (
+              this.fuelCost(car) +
+              (parseFloat(car.insurance) || 0) +
+              (parseFloat(car.casco) || 0) +
+              (parseFloat(car.maintenance) || 0) +
+              (parseFloat(car.depreciation) || 0) +
+              (parseFloat(car.otherCosts) || 0)
+            );
+          },
+          // Export cars to a JSON file
+          exportCars() {
+            const dataStr =
+              "data:text/json;charset=utf-8," +
+              encodeURIComponent(JSON.stringify(this.cars));
+            const downloadAnchorNode = document.createElement("a");
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "cars.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+          },
+          // Import cars from a JSON file
+          importCars(event) {
+            const file = event.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                try {
+                  const importedCars = JSON.parse(e.target.result);
+                  if (
+                    Array.isArray(importedCars) &&
+                    importedCars.every((car) => this.isValidCar(car))
+                  ) {
+                    this.cars = importedCars;
+                    this.saveToLocalStorage();
+                  } else {
+                    alert(this.t("invalidFile"));
+                  }
+                } catch (error) {
+                  alert(this.t("invalidFile"));
+                }
+              };
+              reader.readAsText(file);
+            }
+          },
+          // Check if the car object has all required fields
+          isValidCar(car) {
+            const requiredFields = [
+              "name",
+              "fuelConsumption",
+              "fuelPrice",
+              "mileage",
+              "insurance",
+              "casco",
+              "maintenance",
+              "depreciation",
+              "otherCosts",
+            ];
+            return requiredFields.every(
+              (field) => field in car && typeof car[field] !== "undefined"
+            );
+          },
+
+          sortBy(key) {
+            if (this.sortKey === key) {
+              // Toggle sort order if the same key is clicked
+              this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+            } else {
+              // Set new sort key and default to ascending order
+              this.sortKey = key;
+              this.sortOrder = "asc";
+            }
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
 </html>
