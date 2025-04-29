@@ -686,7 +686,7 @@
           // Import cars from a JSON file
           importCars(event) {
             const file = event.target.files[0];
-            if (file) {
+            if (file && file.type === "application/json" && file.size <= 1048576) { // Limit to 1MB
               const reader = new FileReader();
               reader.onload = (e) => {
                 try {
@@ -705,6 +705,8 @@
                 }
               };
               reader.readAsText(file);
+            } else {
+              alert(this.t("invalidFile"));
             }
           },
           // Check if the car object has all required fields
