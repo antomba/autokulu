@@ -4,35 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Auto kogukulude arvutuse vahend." />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()">
     <title>Auto kulude kalkulaator</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="dist/output.css" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <style>
-      th.cursor-pointer {
-        cursor: pointer;
-        user-select: none;
-      }
-      .gradient-bg {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
-      .hero-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
-      .card-hover {
-        transition: all 0.3s ease;
-      }
-      .card-hover:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-          0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      }
-      .feature-icon {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.5/purify.min.js"></script>
   </head>
 
   <!-- Google tag (gtag.js) -->
@@ -49,111 +31,112 @@
     gtag("config", "G-5WS1EH8N9H");
   </script>
 
-  <body class="bg-gray-50 min-h-screen" id="app">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg fixed w-full z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
-          <div class="flex items-center">
-            <h1 class="text-2xl font-bold text-gray-900">🚗 AutoKulu</h1>
-          </div>
-          <div class="flex items-center space-x-4">
-            <label for="language" class="sr-only">Vali keel</label>
-            <select
-              id="language"
-              v-model="currentLang"
-              class="p-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="et">🇪🇪 Eesti</option>
-              <option value="en">🇬🇧 English</option>
-              <option value="ru">🇷🇺 Русский</option>
-            </select>
+  <body class="bg-gray-50 min-h-screen">
+    <div id="app">
+      <!-- Navigation -->
+      <nav class="bg-white shadow-lg fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center py-4">
+            <div class="flex items-center">
+              <h1 class="text-2xl font-bold text-gray-900">🚗 AutoKulu</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+              <label for="language" class="sr-only">Vali keel</label>
+              <select
+                id="language"
+                v-model="currentLang"
+                class="p-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="et">🇪🇪 Eesti</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="ru">🇷🇺 Русский</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-gradient pt-24 pb-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
-          {{ t('title') }}
-        </h1>
-        <p class="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-          {{ t('heroSubtitle') }}
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            @click="scrollToCalculator"
-            class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg"
-          >
-            {{ t('getStarted') }}
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="py-16 bg-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            {{ t('featuresTitle') }}
-          </h2>
-          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-            {{ t('featuresSubtitle') }}
+      <!-- Hero Section -->
+      <section class="hero-gradient pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+            {{ t('title') }}
+          </h1>
+          <p class="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+            {{ t('heroSubtitle') }}
           </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div class="text-center card-hover">
-            <div
-              class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-blue-100"
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              @click="scrollToCalculator"
+              class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg"
             >
-              <span class="text-3xl">📊</span>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">
-              {{ t('feature1Title') }}
-            </h3>
-            <p class="text-gray-600">{{ t('feature1Desc') }}</p>
-          </div>
-
-          <div class="text-center card-hover">
-            <div
-              class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-blue-100"
-            >
-              <span class="text-3xl">💾</span>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">
-              {{ t('feature2Title') }}
-            </h3>
-            <p class="text-gray-600">{{ t('feature2Desc') }}</p>
-          </div>
-
-          <div class="text-center card-hover">
-            <div
-              class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-blue-100"
-            >
-              <span class="text-3xl">🌍</span>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">
-              {{ t('feature3Title') }}
-            </h3>
-            <p class="text-gray-600">{{ t('feature3Desc') }}</p>
+              {{ t('getStarted') }}
+            </button>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Calculator Section -->
-    <section id="calculator" class="py-16 bg-gray-50">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            {{ t('calculatorTitle') }}
-          </h2>
-          <p class="text-xl text-gray-600">{{ t('calculatorSubtitle') }}</p>
+      <!-- Features Section -->
+      <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              {{ t('featuresTitle') }}
+            </h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+              {{ t('featuresSubtitle') }}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center card-hover">
+              <div
+                class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-blue-100"
+              >
+                <span class="text-3xl">📊</span>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                {{ t('feature1Title') }}
+              </h3>
+              <p class="text-gray-600">{{ t('feature1Desc') }}</p>
+            </div>
+
+            <div class="text-center card-hover">
+              <div
+                class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-blue-100"
+              >
+                <span class="text-3xl">💾</span>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                {{ t('feature2Title') }}
+              </h3>
+              <p class="text-gray-600">{{ t('feature2Desc') }}</p>
+            </div>
+
+            <div class="text-center card-hover">
+              <div
+                class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-blue-100"
+              >
+                <span class="text-3xl">🌍</span>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                {{ t('feature3Title') }}
+              </h3>
+              <p class="text-gray-600">{{ t('feature3Desc') }}</p>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <!-- Calculator Section -->
+      <section id="calculator" class="py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              {{ t('calculatorTitle') }}
+            </h2>
+            <p class="text-xl text-gray-600">{{ t('calculatorSubtitle') }}</p>
+          </div>
 
         <!-- Calculator Card -->
         <div class="bg-white rounded-2xl shadow-xl p-8 mb-12">
@@ -164,6 +147,7 @@
                   id="car-name"
                   v-model="car.name"
                   type="text"
+                  maxlength="100"
                   placeholder=" "
                   class="peer p-4 pt-8 border-2 border-gray-200 rounded-lg w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
                 />
@@ -185,6 +169,7 @@
                   id="car-link"
                   v-model="car.link"
                   type="url"
+                  maxlength="500"
                   placeholder=" "
                   class="peer p-4 pt-8 border-2 border-gray-200 rounded-lg w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
                 />
@@ -480,9 +465,10 @@
                     <a
                       :href="c.link"
                       target="_blank"
+                      rel="noopener noreferrer"
                       class="text-blue-600 hover:text-blue-800 font-medium hover:underline"
                     >
-                      {{ c.name }}
+                      <span v-text="c.name"></span>
                     </a>
                   </td>
                   <td
@@ -543,23 +529,35 @@
       </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-          <h3 class="text-2xl font-bold mb-4">🚗 AutoKulu</h3>
+      <!-- Footer -->
+      <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h3 class="text-2xl font-bold mb-4">🚗 AutoKulu</h3>
 
-          <div class="mt-8 pt-8 border-t border-gray-800">
-            <p class="text-gray-400">
-              © {{ new Date().getFullYear() }} AutoKulu. {{ t('allRightsReserved') }}
-            </p>
+            <div class="mt-8 pt-8 border-t border-gray-800">
+              <p class="text-gray-400">
+                © {{ new Date().getFullYear() }} AutoKulu. {{ t('allRightsReserved') }}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </footer>
+      </footer>
+
+    </div> <!-- Close #app container -->
 
     <script>
+      console.log('Vue.js script starting...');
+      console.log('Vue object:', typeof Vue, Vue);
+      
+      if (typeof Vue === 'undefined') {
+        console.error('Vue.js not loaded!');
+        document.body.innerHTML = '<div style="padding: 20px; text-align: center;"><h1>Error: Vue.js failed to load</h1><p>Please check your internet connection and refresh the page.</p></div>';
+        throw new Error('Vue.js not loaded');
+      }
+      
       const { createApp, watch } = Vue;
+      console.log('createApp function:', typeof createApp);
 
       createApp({
         data() {
@@ -581,6 +579,9 @@
             currentLang: "et",
             sortKey: null,
             sortOrder: "asc",
+            editIndex: null,
+            lastAddTime: 0,
+            addCooldown: 1000, // 1 second cooldown between adds
             translations: {
               en: {
                 title: "Car Ownership Cost Calculator",
@@ -628,8 +629,29 @@
                 actions: "Actions",
                 edit: "Edit",
                 carNameRequired: "Car name is required.",
+                nameTooLong: "Car name is too long (max 100 characters).",
+                nameTooShort: "Car name is too short (min 2 characters).",
                 invalidURL: "Please enter a valid URL.",
                 positiveNumber: "Please enter a positive number.",
+                fuelConsumptionTooHigh: "Fuel consumption is too high (max 50 L/100km).",
+                fuelPriceTooHigh: "Fuel price is too high (max €10/L).",
+                mileageTooHigh: "Mileage is too high (max 100,000 km/year).",
+                insuranceTooHigh: "Insurance cost is too high (max €10,000).",
+                cascoTooHigh: "Casco cost is too high (max €10,000).",
+                maintenanceTooHigh: "Maintenance cost is too high (max €10,000).",
+                otherCostsTooHigh: "Other costs are too high (max €10,000).",
+                noFileSelected: "No file selected.",
+                fileTooLarge: "File is too large (max 1MB).",
+                invalidFileType: "Invalid file type. Please select a JSON file.",
+                invalidFileStructure: "Invalid file structure. File should contain an array of cars.",
+                noValidCars: "No valid cars found in the file.",
+                importSuccess: "Import successful!",
+                carsImported: "cars imported.",
+                fileReadError: "Error reading file. Please try again.",
+                pleaseWait: "Please wait a moment before adding another car.",
+                tooManyCars: "Maximum number of cars (1000) reached. Please remove some cars first.",
+                noCarsToExport: "No cars to export.",
+                exportError: "Error exporting cars. Please try again.",
                 getStarted: "Get Started",
 
                 allRightsReserved: "All rights reserved.",
@@ -681,8 +703,29 @@
                 actions: "Tegevused",
                 edit: "Muuda",
                 carNameRequired: "Auto nimi on kohustuslik.",
+                nameTooLong: "Auto nimi on liiga pikk (maks 100 tähemärki).",
+                nameTooShort: "Auto nimi on liiga lühike (min 2 tähemärki).",
                 invalidURL: "Palun sisestage kehtiv URL.",
                 positiveNumber: "Palun sisestage positiivne number.",
+                fuelConsumptionTooHigh: "Kütusekulu on liiga kõrge (maks 50 L/100km).",
+                fuelPriceTooHigh: "Kütuse hind on liiga kõrge (maks €10/L).",
+                mileageTooHigh: "Läbisõit on liiga kõrge (maks 100 000 km/aastas).",
+                insuranceTooHigh: "Kindlustuse maksumus on liiga kõrge (maks €10 000).",
+                cascoTooHigh: "Kasko maksumus on liiga kõrge (maks €10 000).",
+                maintenanceTooHigh: "Hoolduse maksumus on liiga kõrge (maks €10 000).",
+                otherCostsTooHigh: "Muud kulud on liiga kõrged (maks €10 000).",
+                noFileSelected: "Faili pole valitud.",
+                fileTooLarge: "Fail on liiga suur (maks 1MB).",
+                invalidFileType: "Vigane failitüüp. Palun valige JSON-fail.",
+                invalidFileStructure: "Vigane faili struktuur. Fail peab sisaldama autode massiivi.",
+                noValidCars: "Failis ei leitud kehtivaid autosid.",
+                importSuccess: "Import õnnestus!",
+                carsImported: "autot imporditud.",
+                fileReadError: "Viga faili lugemisel. Palun proovige uuesti.",
+                pleaseWait: "Palun oodake hetk enne järgmise auto lisamist.",
+                tooManyCars: "Maksimaalne autode arv (1000) on saavutatud. Palun eemaldage mõni auto esmalt.",
+                noCarsToExport: "Autosid pole eksportida.",
+                exportError: "Viga autode eksportimisel. Palun proovige uuesti.",
                 getStarted: "Alusta",
 
                 allRightsReserved: "Kõik õigused kaitstud.",
@@ -734,8 +777,29 @@
                 actions: "Действия",
                 edit: "Редактировать",
                 carNameRequired: "Название автомобиля обязательно.",
+                nameTooLong: "Название автомобиля слишком длинное (макс 100 символов).",
+                nameTooShort: "Название автомобиля слишком короткое (мин 2 символа).",
                 invalidURL: "Пожалуйста, введите действительный URL.",
                 positiveNumber: "Пожалуйста, введите положительное число.",
+                fuelConsumptionTooHigh: "Расход топлива слишком высокий (макс 50 л/100км).",
+                fuelPriceTooHigh: "Цена топлива слишком высокая (макс €10/л).",
+                mileageTooHigh: "Пробег слишком высокий (макс 100 000 км/год).",
+                insuranceTooHigh: "Стоимость страховки слишком высокая (макс €10 000).",
+                cascoTooHigh: "Стоимость каско слишком высокая (макс €10 000).",
+                maintenanceTooHigh: "Стоимость обслуживания слишком высокая (макс €10 000).",
+                otherCostsTooHigh: "Прочие расходы слишком высокие (макс €10 000).",
+                noFileSelected: "Файл не выбран.",
+                fileTooLarge: "Файл слишком большой (макс 1МБ).",
+                invalidFileType: "Неверный тип файла. Пожалуйста, выберите JSON-файл.",
+                invalidFileStructure: "Неверная структура файла. Файл должен содержать массив автомобилей.",
+                noValidCars: "В файле не найдено действительных автомобилей.",
+                importSuccess: "Импорт успешен!",
+                carsImported: "автомобилей импортировано.",
+                fileReadError: "Ошибка чтения файла. Пожалуйста, попробуйте снова.",
+                pleaseWait: "Пожалуйста, подождите немного перед добавлением следующего автомобиля.",
+                tooManyCars: "Достигнуто максимальное количество автомобилей (1000). Пожалуйста, сначала удалите несколько автомобилей.",
+                noCarsToExport: "Нет автомобилей для экспорта.",
+                exportError: "Ошибка экспорта автомобилей. Пожалуйста, попробуйте снова.",
                 getStarted: "Начать",
 
                 allRightsReserved: "Все права защищены.",
@@ -791,44 +855,69 @@
           },
 
           t(key) {
-            return this.translations[this.currentLang][key] || key;
+            console.log('Translation called for key:', key, 'currentLang:', this.currentLang);
+            console.log('Available translations:', this.translations);
+            const result = this.translations[this.currentLang][key] || key;
+            console.log('Translation result:', result);
+            return result;
           },
 
           editCar(index) {
             const carToEdit = this.cars[index];
-            this.car = { ...carToEdit };
+            // Sanitize data when editing to prevent XSS
+            this.car = {
+              name: DOMPurify.sanitize(carToEdit.name),
+              link: carToEdit.link ? DOMPurify.sanitize(carToEdit.link) : "",
+              fuelConsumption: parseFloat(carToEdit.fuelConsumption) || 0,
+              fuelPrice: parseFloat(carToEdit.fuelPrice) || 0,
+              mileage: parseFloat(carToEdit.mileage) || 0,
+              insurance: parseFloat(carToEdit.insurance) || 0,
+              casco: parseFloat(carToEdit.casco) || 0,
+              maintenance: parseFloat(carToEdit.maintenance) || 0,
+              depreciation: parseFloat(carToEdit.depreciation) || 0,
+              otherCosts: parseFloat(carToEdit.otherCosts) || 0,
+            };
             this.editIndex = index;
           },
 
           validateForm() {
             this.validationErrors = {};
 
-            if (!this.car.name) {
+            // Name validation with length limits and sanitization
+            if (!this.car.name || this.car.name.trim().length === 0) {
               this.validationErrors.name = this.t("carNameRequired");
+            } else if (this.car.name.length > 100) {
+              this.validationErrors.name = this.t("nameTooLong");
+            } else if (this.car.name.trim().length < 2) {
+              this.validationErrors.name = this.t("nameTooShort");
             }
+
+            // URL validation
             if (this.car.link && !this.isValidURL(this.car.link)) {
               this.validationErrors.link = this.t("invalidURL");
             }
-            if (this.car.fuelConsumption < 0) {
-              this.validationErrors.fuelConsumption = this.t("positiveNumber");
+
+            // Numeric validations with reasonable upper bounds
+            if (this.car.fuelConsumption < 0 || this.car.fuelConsumption > 50) {
+              this.validationErrors.fuelConsumption = this.car.fuelConsumption < 0 ? this.t("positiveNumber") : this.t("fuelConsumptionTooHigh");
             }
-            if (this.car.fuelPrice < 0) {
-              this.validationErrors.fuelPrice = this.t("positiveNumber");
+            if (this.car.fuelPrice < 0 || this.car.fuelPrice > 10) {
+              this.validationErrors.fuelPrice = this.car.fuelPrice < 0 ? this.t("positiveNumber") : this.t("fuelPriceTooHigh");
             }
-            if (this.car.mileage < 0) {
-              this.validationErrors.mileage = this.t("positiveNumber");
+            if (this.car.mileage < 0 || this.car.mileage > 100000) {
+              this.validationErrors.mileage = this.car.mileage < 0 ? this.t("positiveNumber") : this.t("mileageTooHigh");
             }
-            if (this.car.insurance < 0) {
-              this.validationErrors.insurance = this.t("positiveNumber");
+            if (this.car.insurance < 0 || this.car.insurance > 10000) {
+              this.validationErrors.insurance = this.car.insurance < 0 ? this.t("positiveNumber") : this.t("insuranceTooHigh");
             }
-            if (this.car.casco < 0) {
-              this.validationErrors.casco = this.t("positiveNumber");
+            if (this.car.casco < 0 || this.car.casco > 10000) {
+              this.validationErrors.casco = this.car.casco < 0 ? this.t("positiveNumber") : this.t("cascoTooHigh");
             }
-            if (this.car.maintenance < 0) {
-              this.validationErrors.maintenance = this.t("positiveNumber");
+            if (this.car.maintenance < 0 || this.car.maintenance > 10000) {
+              this.validationErrors.maintenance = this.car.maintenance < 0 ? this.t("positiveNumber") : this.t("maintenanceTooHigh");
             }
-            if (this.car.otherCosts < 0) {
-              this.validationErrors.otherCosts = this.t("positiveNumber");
+            if (this.car.otherCosts < 0 || this.car.otherCosts > 10000) {
+              this.validationErrors.otherCosts = this.car.otherCosts < 0 ? this.t("positiveNumber") : this.t("otherCostsTooHigh");
             }
 
             return Object.keys(this.validationErrors).length === 0;
@@ -836,21 +925,72 @@
 
           isValidURL(url) {
             try {
+              // Block dangerous protocols
+              const blockedProtocols = ['javascript:', 'data:', 'vbscript:', 'file:', 'ftp:', 'mailto:', 'tel:'];
+              if (blockedProtocols.some(p => url.toLowerCase().trim().startsWith(p))) {
+                return false;
+              }
+              
               const parsedUrl = new URL(url);
-              return ["http:", "https:"].includes(parsedUrl.protocol);
+              const allowedProtocols = ['http:', 'https:'];
+              
+              // Additional security checks
+              if (!allowedProtocols.includes(parsedUrl.protocol)) {
+                return false;
+              }
+              
+              // Block localhost and private IP ranges for additional security
+              const hostname = parsedUrl.hostname.toLowerCase();
+              if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
+                return false;
+              }
+              
+              return true;
             } catch (_) {
               return false;
             }
           },
 
           addCar() {
+            // Rate limiting to prevent spam
+            const now = Date.now();
+            if (now - this.lastAddTime < this.addCooldown) {
+              alert(this.t("pleaseWait"));
+              return;
+            }
+            
             if (this.validateForm()) {
               if (this.car.name) {
-                const newCar = {
-                  ...this.car,
+                // Check if we're not exceeding maximum cars limit
+                if (this.cars.length >= 1000) {
+                  alert(this.t("tooManyCars"));
+                  return;
+                }
+                
+                // Sanitize all text inputs to prevent XSS
+                const sanitizedCar = {
+                  name: DOMPurify.sanitize(this.car.name.trim()),
+                  link: this.car.link ? DOMPurify.sanitize(this.car.link.trim()) : "",
+                  fuelConsumption: parseFloat(this.car.fuelConsumption) || 0,
+                  fuelPrice: parseFloat(this.car.fuelPrice) || 0,
+                  mileage: parseFloat(this.car.mileage) || 0,
+                  insurance: parseFloat(this.car.insurance) || 0,
+                  casco: parseFloat(this.car.casco) || 0,
+                  maintenance: parseFloat(this.car.maintenance) || 0,
+                  depreciation: parseFloat(this.car.depreciation) || 0,
+                  otherCosts: parseFloat(this.car.otherCosts) || 0,
                   savedDate: new Date().toLocaleDateString("et-EE"),
                 };
-                this.cars.push(newCar);
+                
+                if (this.editIndex !== null && this.editIndex !== undefined) {
+                  // Update existing car
+                  this.cars[this.editIndex] = sanitizedCar;
+                } else {
+                  // Add new car
+                  this.cars.push(sanitizedCar);
+                }
+                
+                this.lastAddTime = now;
                 this.saveToLocalStorage();
                 this.resetForm();
               }
@@ -868,7 +1008,26 @@
           },
 
           saveToLocalStorage() {
-            localStorage.setItem("cars", JSON.stringify(this.cars));
+            try {
+              // Validate cars array before saving
+              if (Array.isArray(this.cars) && this.cars.length <= 1000) {
+                localStorage.setItem("cars", JSON.stringify(this.cars));
+              } else {
+                console.error("Invalid cars data structure or too many cars");
+                // Reset to empty array if corrupted
+                this.cars = [];
+                localStorage.removeItem("cars");
+              }
+            } catch (error) {
+              console.error("Error saving to localStorage:", error);
+              // Fallback: try to save empty array
+              try {
+                this.cars = [];
+                localStorage.removeItem("cars");
+              } catch (fallbackError) {
+                console.error("Critical localStorage error:", fallbackError);
+              }
+            }
           },
 
           resetForm() {
@@ -905,48 +1064,90 @@
           },
 
           exportCars() {
-            const dataStr =
-              "data:text/json;charset=utf-8," +
-              encodeURIComponent(JSON.stringify(this.cars));
-            const downloadAnchorNode = document.createElement("a");
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "cars.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
+            try {
+              // Validate data before export
+              if (!Array.isArray(this.cars) || this.cars.length === 0) {
+                alert(this.t("noCarsToExport"));
+                return;
+              }
+              
+              // Sanitize data before export to prevent any potential XSS in exported files
+              const sanitizedCars = this.cars.map(car => this.sanitizeCarData(car));
+              
+              const dataStr =
+                "data:text/json;charset=utf-8," +
+                encodeURIComponent(JSON.stringify(sanitizedCars, null, 2));
+              const downloadAnchorNode = document.createElement("a");
+              downloadAnchorNode.setAttribute("href", dataStr);
+              downloadAnchorNode.setAttribute("download", "cars.json");
+              document.body.appendChild(downloadAnchorNode);
+              downloadAnchorNode.click();
+              downloadAnchorNode.remove();
+            } catch (error) {
+              console.error("Export error:", error);
+              alert(this.t("exportError"));
+            }
           },
 
           importCars(event) {
             const file = event.target.files[0];
-            if (
-              file &&
-              file.type === "application/json" &&
-              file.size <= 1048576
-            ) {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                try {
-                  const importedCars = JSON.parse(e.target.result);
-                  if (
-                    Array.isArray(importedCars) &&
-                    importedCars.every((car) => this.isValidCar(car))
-                  ) {
-                    this.cars = importedCars;
-                    this.saveToLocalStorage();
-                  } else {
-                    alert(this.t("invalidFile"));
-                  }
-                } catch (error) {
-                  alert(this.t("invalidFile"));
-                }
-              };
-              reader.readAsText(file);
-            } else {
-              alert(this.t("invalidFile"));
+            
+            // Enhanced file validation
+            if (!file) {
+              alert(this.t("noFileSelected"));
+              return;
             }
+            
+            if (file.size > 1048576) { // 1MB limit
+              alert(this.t("fileTooLarge"));
+              return;
+            }
+            
+            if (file.type !== "application/json" && !file.name.endsWith('.json')) {
+              alert(this.t("invalidFileType"));
+              return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              try {
+                const importedCars = JSON.parse(e.target.result);
+                
+                // Validate structure and sanitize data
+                if (Array.isArray(importedCars) && importedCars.length <= 100) { // Limit number of cars
+                  const sanitizedCars = importedCars
+                    .filter(car => this.isValidCar(car))
+                    .map(car => this.sanitizeCarData(car));
+                  
+                  if (sanitizedCars.length > 0) {
+                    this.cars = sanitizedCars;
+                    this.saveToLocalStorage();
+                    alert(this.t("importSuccess") + " " + sanitizedCars.length + " " + this.t("carsImported"));
+                  } else {
+                    alert(this.t("noValidCars"));
+                  }
+                } else {
+                  alert(this.t("invalidFileStructure"));
+                }
+              } catch (error) {
+                console.error("Import error:", error);
+                alert(this.t("invalidFile"));
+              }
+            };
+            
+            reader.onerror = () => {
+              alert(this.t("fileReadError"));
+            };
+            
+            reader.readAsText(file);
           },
 
           isValidCar(car) {
+            // Check if car is an object
+            if (!car || typeof car !== 'object' || Array.isArray(car)) {
+              return false;
+            }
+            
             const requiredFields = [
               "name",
               "fuelConsumption",
@@ -958,9 +1159,51 @@
               "depreciation",
               "otherCosts",
             ];
-            return requiredFields.every(
+            
+            // Check required fields exist and have valid types
+            const hasRequiredFields = requiredFields.every(
               (field) => field in car && typeof car[field] !== "undefined"
             );
+            
+            if (!hasRequiredFields) return false;
+            
+            // Validate name field
+            if (typeof car.name !== 'string' || car.name.trim().length === 0 || car.name.length > 100) {
+              return false;
+            }
+            
+            // Validate numeric fields
+            const numericFields = ['fuelConsumption', 'fuelPrice', 'mileage', 'insurance', 'casco', 'maintenance', 'depreciation', 'otherCosts'];
+            const numericValidation = numericFields.every(field => {
+              const value = parseFloat(car[field]);
+              return !isNaN(value) && value >= 0 && value <= 100000;
+            });
+            
+            // Validate link if present
+            if (car.link && typeof car.link === 'string') {
+              if (!this.isValidURL(car.link)) {
+                return false;
+              }
+            }
+            
+            return numericValidation;
+          },
+          
+          sanitizeCarData(car) {
+            // Sanitize and normalize car data
+            return {
+              name: DOMPurify.sanitize(car.name.trim()),
+              link: car.link ? DOMPurify.sanitize(car.link.trim()) : "",
+              fuelConsumption: Math.max(0, Math.min(50, parseFloat(car.fuelConsumption) || 0)),
+              fuelPrice: Math.max(0, Math.min(10, parseFloat(car.fuelPrice) || 0)),
+              mileage: Math.max(0, Math.min(100000, parseFloat(car.mileage) || 0)),
+              insurance: Math.max(0, Math.min(10000, parseFloat(car.insurance) || 0)),
+              casco: Math.max(0, Math.min(10000, parseFloat(car.casco) || 0)),
+              maintenance: Math.max(0, Math.min(10000, parseFloat(car.maintenance) || 0)),
+              depreciation: Math.max(0, Math.min(10000, parseFloat(car.depreciation) || 0)),
+              otherCosts: Math.max(0, Math.min(10000, parseFloat(car.otherCosts) || 0)),
+              savedDate: car.savedDate || new Date().toLocaleDateString("et-EE"),
+            };
           },
 
           sortBy(key) {
