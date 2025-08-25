@@ -13,6 +13,8 @@ const productionHtml = sourceHtml
     '<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>',
     '<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>'
   )
+  // Fix CSS path for production artifact root (dist/ becomes ./)
+  .replace('dist/output.css', 'output.css')
   // Remove console.log statements for production
   .replace(/console\.log\([^)]+\);?\s*/g, '')
   .replace(/console\.error\([^)]+\);?\s*/g, '');
