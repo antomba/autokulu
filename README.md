@@ -112,7 +112,3 @@ npm run serve
 ```
 
 Then open http://localhost:8080 in your browser.
-
-## License
-
-MIT License - see LICENSE file for details.
