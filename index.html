@@ -11,9 +11,8 @@
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()">
     <title>Auto kulude kalkulaator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="dist/output.css" rel="stylesheet">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.5/purify.min.js"></script>
   </head>
 
@@ -547,9 +546,6 @@
     </div> <!-- Close #app container -->
 
     <script>
-      console.log('Vue.js script starting...');
-      console.log('Vue object:', typeof Vue, Vue);
-      
       if (typeof Vue === 'undefined') {
         console.error('Vue.js not loaded!');
         document.body.innerHTML = '<div style="padding: 20px; text-align: center;"><h1>Error: Vue.js failed to load</h1><p>Please check your internet connection and refresh the page.</p></div>';
@@ -557,7 +553,6 @@
       }
       
       const { createApp, watch } = Vue;
-      console.log('createApp function:', typeof createApp);
 
       createApp({
         data() {
@@ -855,11 +850,7 @@
           },
 
           t(key) {
-            console.log('Translation called for key:', key, 'currentLang:', this.currentLang);
-            console.log('Available translations:', this.translations);
-            const result = this.translations[this.currentLang][key] || key;
-            console.log('Translation result:', result);
-            return result;
+            return this.translations[this.currentLang][key] || key;
           },
 
           editCar(index) {
