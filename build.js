@@ -28,7 +28,7 @@ if (!fs.existsSync('dist')) {
 fs.writeFileSync('dist/index.html', productionHtml);
 
 // Copy other necessary files to dist
-const filesToCopy = ['CNAME', 'SECURITY.md', 'README.md'];
+const filesToCopy = ['CNAME', 'SECURITY.md', 'README.md', 'favicon.ico', 'favicon-32x32.png', 'favicon-16x16.png', 'apple-touch-icon.png'];
 filesToCopy.forEach(file => {
   if (fs.existsSync(file)) {
     fs.copyFileSync(file, `dist/${file}`);
