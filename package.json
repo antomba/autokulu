@@ -7,9 +7,11 @@
     "build": "npm run build:css && npm run build:html",
     "build:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
     "build:html": "node build.js",
+    "build:gh-pages": "npm run build:css && npm run build:html",
     "watch": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
     "dev": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
-    "serve": "npx http-server . -p 8080 -c-1"
+    "serve": "npx http-server . -p 8080 -c-1",
+    "preview": "npx http-server ./dist -p 8080 -c-1"
   },
   "keywords": ["car", "calculator", "cost", "estonia"],
   "author": "AutoKulu",

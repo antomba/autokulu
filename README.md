@@ -69,6 +69,22 @@ The production build creates a `dist/` directory containing:
 
 ## Deployment
 
+### GitHub Pages (Recommended)
+
+This project is configured for automatic deployment to GitHub Pages:
+
+1. **Push to GitHub**: Your code will automatically deploy when you push to the `main` or `master` branch
+2. **Automatic Build**: GitHub Actions will build and deploy your site automatically
+3. **Custom Domain**: If you have a `CNAME` file, it will be automatically configured
+
+#### Manual GitHub Pages Setup
+
+1. Go to your repository Settings → Pages
+2. Set Source to "GitHub Actions"
+3. The workflow will automatically deploy from the `dist/` folder
+
+### Manual Deployment
+
 1. Run the production build:
    ```bash
    npm run build

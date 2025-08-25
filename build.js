@@ -26,12 +26,19 @@ if (!fs.existsSync('dist')) {
 fs.writeFileSync('dist/index.html', productionHtml);
 
 // Copy other necessary files to dist
-const filesToCopy = ['CNAME', 'SECURITY.md'];
+const filesToCopy = ['CNAME', 'SECURITY.md', 'README.md'];
 filesToCopy.forEach(file => {
   if (fs.existsSync(file)) {
     fs.copyFileSync(file, `dist/${file}`);
   }
 });
+
+// Copy the built CSS file to dist if it exists
+if (fs.existsSync('dist/output.css')) {
+  console.log('CSS file already exists in dist/');
+} else {
+  console.log('Warning: CSS file not found in dist/. Make sure to run "npm run build:css" first.');
+}
 
 console.log('Production build completed!');
 console.log('Files generated in dist/ directory');
