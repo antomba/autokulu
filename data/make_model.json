@@ -1,5 +1,3 @@
-// Source: https://andmed.eesti.ee/datasets/esmaselt-registreeritud-soidukid
-// Prompt used: "Based on registration data, generate a standardized global make + model list for dropdowns. Cover ~97 percentile by count (arv), normalize naming across markets, remove low-frequency models, and keep it user-friendly."
 {
   "AUDI": [
     "A1",
