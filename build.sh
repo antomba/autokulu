@@ -22,6 +22,8 @@ cp favicon.ico dist/ 2>/dev/null || echo "favicon.ico not found, skipping..."
 cp favicon-32x32.png dist/ 2>/dev/null || echo "favicon-32x32.png not found, skipping..."
 cp favicon-16x16.png dist/ 2>/dev/null || echo "favicon-16x16.png not found, skipping..."
 cp apple-touch-icon.png dist/ 2>/dev/null || echo "apple-touch-icon.png not found, skipping..."
+mkdir -p dist/data
+cp data/make_model.json dist/data/ 2>/dev/null || echo "make_model.json not found, skipping..."
 
 echo "✅ Production build completed!"
 echo "📁 Files are in the dist/ directory"

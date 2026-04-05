@@ -136,23 +136,80 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="flex flex-col">
               <div class="relative">
+                <select
+                  id="car-make"
+                  v-model="car.make"
+                  class="peer p-4 pt-8 border-2 border-gray-200 rounded-lg w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+                >
+                  <option value="">{{ t('selectMake') }}</option>
+                  <option
+                    v-for="make in makeOptions"
+                    :key="make"
+                    :value="make"
+                  >
+                    {{ make }}
+                  </option>
+                </select>
+                <label
+                  for="car-make"
+                  class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600"
+                >
+                  {{ t('make') }}
+                </label>
+              </div>
+              <p v-if="validationErrors.make" class="text-red-600 text-sm mt-2">
+                {{ validationErrors.make }}
+              </p>
+            </div>
+
+            <div class="flex flex-col">
+              <div class="relative">
+                <select
+                  id="car-model"
+                  v-model="car.model"
+                  :disabled="!car.make || !modelOptions.length"
+                  class="peer p-4 pt-8 border-2 border-gray-200 rounded-lg w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200 disabled:bg-gray-100 disabled:text-gray-400"
+                >
+                  <option value="">{{ t('selectModel') }}</option>
+                  <option
+                    v-for="model in modelOptions"
+                    :key="model"
+                    :value="model"
+                  >
+                    {{ model }}
+                  </option>
+                </select>
+                <label
+                  for="car-model"
+                  class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600"
+                >
+                  {{ t('model') }}
+                </label>
+              </div>
+              <p v-if="validationErrors.model" class="text-red-600 text-sm mt-2">
+                {{ validationErrors.model }}
+              </p>
+            </div>
+
+            <div class="flex flex-col">
+              <div class="relative">
                 <input
-                  id="car-name"
-                  v-model="car.name"
+                  id="car-comment"
+                  v-model="car.comment"
                   type="text"
                   maxlength="100"
                   placeholder=" "
                   class="peer p-4 pt-8 border-2 border-gray-200 rounded-lg w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
                 />
                 <label
-                  for="car-name"
+                  for="car-comment"
                   class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600"
                 >
-                  {{ t('carName') }}
+                  {{ t('comment') }}
                 </label>
               </div>
-              <p v-if="validationErrors.name" class="text-red-600 text-sm mt-2">
-                {{ validationErrors.name }}
+              <p v-if="validationErrors.comment" class="text-red-600 text-sm mt-2">
+                {{ validationErrors.comment }}
               </p>
             </div>
 
@@ -410,11 +467,11 @@
               <thead>
                 <tr class="bg-gray-50">
                   <th
-                    @click="sortBy('name')"
+                    @click="sortBy('vehicle')"
                     class="border-b border-gray-200 p-4 text-left font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 transition duration-200"
                   >
-                    {{ t('carName') }}
-                    <span v-if="sortKey === 'name'" class="ml-2">
+                    {{ t('vehicle') }}
+                    <span v-if="sortKey === 'vehicle'" class="ml-2">
                       {{ sortOrder === 'asc' ? '↑' : '↓' }}
                     </span>
                   </th>
@@ -455,14 +512,22 @@
                   class="hover:bg-gray-50 transition duration-200"
                 >
                   <td class="border-b border-gray-200 p-4">
-                    <a
-                      :href="c.link"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-blue-600 hover:text-blue-800 font-medium hover:underline"
-                    >
-                      <span v-text="c.name"></span>
-                    </a>
+                    <template v-if="c.link">
+                      <a
+                        :href="c.link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                      >
+                        <span v-text="displayVehicleName(c)"></span>
+                      </a>
+                    </template>
+                    <template v-else>
+                      <span class="font-medium text-gray-900" v-text="displayVehicleName(c)"></span>
+                    </template>
+                    <p v-if="c.comment" class="mt-1 text-sm text-gray-500">
+                      {{ t('comment') }}: <span v-text="c.comment"></span>
+                    </p>
                   </td>
                   <td
                     class="border-b border-gray-200 p-4 font-semibold text-gray-900"
@@ -551,7 +616,9 @@
         data() {
           return {
             car: {
-              name: "",
+              make: "",
+              model: "",
+              comment: "",
               link: "",
               fuelConsumption: "",
               fuelPrice: "",
@@ -562,7 +629,7 @@
               depreciation: "",
               otherCosts: "",
             },
-            cars: JSON.parse(localStorage.getItem("cars")) || [],
+            cars: [],
             validationErrors: {},
             currentLang: "et",
             sortKey: null,
@@ -570,6 +637,9 @@
             editIndex: null,
             lastAddTime: 0,
             addCooldown: 1000, // 1 second cooldown between adds
+            makeModelData: {},
+            vehicleDataLoading: false,
+            vehicleDataError: false,
             translations: {
               en: {
                 title: "Car Ownership Cost Calculator",
@@ -601,7 +671,12 @@
                 otherCosts: "Other Costs",
                 remove: "Remove",
                 clear: "Clear All",
-                carName: "Car Name",
+                vehicle: "Vehicle",
+                make: "Make",
+                model: "Model",
+                comment: "Comment",
+                selectMake: "Select make",
+                selectModel: "Select model",
                 webLink: "Web Link",
                 fuelConsumption: "Fuel Consumption (L/100km)",
                 fuelPrice: "Fuel Price (€/L)",
@@ -616,9 +691,9 @@
                 subCosts: "Sub Costs per Year",
                 actions: "Actions",
                 edit: "Edit",
-                carNameRequired: "Car name is required.",
-                nameTooLong: "Car name is too long (max 100 characters).",
-                nameTooShort: "Car name is too short (min 2 characters).",
+                makeRequired: "Make is required.",
+                modelRequired: "Model is required.",
+                commentTooLong: "Comment is too long (max 100 characters).",
                 invalidURL: "Please enter a valid URL.",
                 positiveNumber: "Please enter a positive number.",
                 fuelConsumptionTooHigh: "Fuel consumption is too high (max 50 L/100km).",
@@ -640,6 +715,7 @@
                 tooManyCars: "Maximum number of cars (1000) reached. Please remove some cars first.",
                 noCarsToExport: "No cars to export.",
                 exportError: "Error exporting cars. Please try again.",
+                vehicleDataLoadError: "Failed to load make and model data.",
                 getStarted: "Get Started",
 
                 allRightsReserved: "All rights reserved.",
@@ -675,7 +751,12 @@
                 otherCosts: "Muud kulud",
                 remove: "Eemalda",
                 clear: "Kustuta kõik",
-                carName: "Auto nimi",
+                vehicle: "Sõiduk",
+                make: "Mark",
+                model: "Mudel",
+                comment: "Kommentaar",
+                selectMake: "Vali mark",
+                selectModel: "Vali mudel",
                 webLink: "Veebileht",
                 fuelConsumption: "Kütusekulu (L/100km)",
                 fuelPrice: "Kütuse hind (€/L)",
@@ -690,9 +771,9 @@
                 subCosts: "Alamkulud aastas",
                 actions: "Tegevused",
                 edit: "Muuda",
-                carNameRequired: "Auto nimi on kohustuslik.",
-                nameTooLong: "Auto nimi on liiga pikk (maks 100 tähemärki).",
-                nameTooShort: "Auto nimi on liiga lühike (min 2 tähemärki).",
+                makeRequired: "Mark on kohustuslik.",
+                modelRequired: "Mudel on kohustuslik.",
+                commentTooLong: "Kommentaar on liiga pikk (maks 100 tähemärki).",
                 invalidURL: "Palun sisestage kehtiv URL.",
                 positiveNumber: "Palun sisestage positiivne number.",
                 fuelConsumptionTooHigh: "Kütusekulu on liiga kõrge (maks 50 L/100km).",
@@ -714,6 +795,7 @@
                 tooManyCars: "Maksimaalne autode arv (1000) on saavutatud. Palun eemaldage mõni auto esmalt.",
                 noCarsToExport: "Autosid pole eksportida.",
                 exportError: "Viga autode eksportimisel. Palun proovige uuesti.",
+                vehicleDataLoadError: "Margi ja mudeli andmete laadimine ebaõnnestus.",
                 getStarted: "Alusta",
 
                 allRightsReserved: "Kõik õigused kaitstud.",
@@ -749,7 +831,12 @@
                 otherCosts: "Прочее",
                 remove: "Удалить",
                 clear: "Удалить все",
-                carName: "Название авто",
+                vehicle: "Автомобиль",
+                make: "Марка",
+                model: "Модель",
+                comment: "Комментарий",
+                selectMake: "Выберите марку",
+                selectModel: "Выберите модель",
                 webLink: "Ссылка",
                 fuelConsumption: "Расход топлива (л/100км)",
                 fuelPrice: "Цена топлива (€/л)",
@@ -764,9 +851,9 @@
                 subCosts: "Подзатраты в год",
                 actions: "Действия",
                 edit: "Редактировать",
-                carNameRequired: "Название автомобиля обязательно.",
-                nameTooLong: "Название автомобиля слишком длинное (макс 100 символов).",
-                nameTooShort: "Название автомобиля слишком короткое (мин 2 символа).",
+                makeRequired: "Марка обязательна.",
+                modelRequired: "Модель обязательна.",
+                commentTooLong: "Комментарий слишком длинный (макс 100 символов).",
                 invalidURL: "Пожалуйста, введите действительный URL.",
                 positiveNumber: "Пожалуйста, введите положительное число.",
                 fuelConsumptionTooHigh: "Расход топлива слишком высокий (макс 50 л/100км).",
@@ -788,6 +875,7 @@
                 tooManyCars: "Достигнуто максимальное количество автомобилей (1000). Пожалуйста, сначала удалите несколько автомобилей.",
                 noCarsToExport: "Нет автомобилей для экспорта.",
                 exportError: "Ошибка экспорта автомобилей. Пожалуйста, попробуйте снова.",
+                vehicleDataLoadError: "Не удалось загрузить данные марок и моделей.",
                 getStarted: "Начать",
 
                 allRightsReserved: "Все права защищены.",
@@ -799,15 +887,43 @@
         created() {
           const savedLang = localStorage.getItem("preferredLang");
           if (savedLang) this.currentLang = savedLang;
+          this.loadSavedCars();
+          this.loadVehicleData();
         },
 
         watch: {
           currentLang(newLang) {
             localStorage.setItem("preferredLang", newLang);
           },
+          "car.make"(newMake) {
+            if (!newMake) {
+              this.car.model = "";
+              return;
+            }
+
+            if (!this.modelOptions.includes(this.car.model)) {
+              this.car.model = "";
+            }
+          },
         },
 
         computed: {
+          makeOptions() {
+            return Object.keys(this.makeModelData).sort((a, b) =>
+              a.localeCompare(b)
+            );
+          },
+
+          modelOptions() {
+            if (!this.car.make || !this.makeModelData[this.car.make]) {
+              return [];
+            }
+
+            return [...this.makeModelData[this.car.make]].sort((a, b) =>
+              a.localeCompare(b)
+            );
+          },
+
           sortedCars() {
             if (!this.sortKey) {
               return this.cars;
@@ -821,6 +937,9 @@
               } else if (this.sortKey === "monthlyCost") {
                 aValue = this.calculateAnnualCost(a) / 12;
                 bValue = this.calculateAnnualCost(b) / 12;
+              } else if (this.sortKey === "vehicle") {
+                aValue = this.displayVehicleName(a).toLowerCase();
+                bValue = this.displayVehicleName(b).toLowerCase();
               } else {
                 aValue = a[this.sortKey]?.toString().toLowerCase() || "";
                 bValue = b[this.sortKey]?.toString().toLowerCase() || "";
@@ -846,11 +965,56 @@
             return this.translations[this.currentLang][key] || key;
           },
 
+          async loadVehicleData() {
+            this.vehicleDataLoading = true;
+            this.vehicleDataError = false;
+
+            try {
+              const response = await fetch("./data/make_model.json");
+              if (!response.ok) {
+                throw new Error("Vehicle data request failed");
+              }
+
+              const data = await response.json();
+              if (!data || typeof data !== "object" || Array.isArray(data)) {
+                throw new Error("Invalid vehicle data structure");
+              }
+
+              this.makeModelData = data;
+            } catch (error) {
+              this.vehicleDataError = true;
+              alert(this.t("vehicleDataLoadError"));
+            } finally {
+              this.vehicleDataLoading = false;
+            }
+          },
+
+          loadSavedCars() {
+            try {
+              const savedCars = JSON.parse(localStorage.getItem("cars")) || [];
+              this.cars = Array.isArray(savedCars)
+                ? savedCars
+                    .filter((car) => this.isValidCar(car))
+                    .map((car) => this.sanitizeCarData(car))
+                : [];
+            } catch (error) {
+              this.cars = [];
+              localStorage.removeItem("cars");
+            }
+          },
+
+          displayVehicleName(car) {
+            return [car.make, car.model].filter(Boolean).join(" ");
+          },
+
           editCar(index) {
             const carToEdit = this.cars[index];
-            // Sanitize data when editing to prevent XSS
             this.car = {
-              name: DOMPurify.sanitize(carToEdit.name),
+              make: DOMPurify.sanitize(carToEdit.make),
+              model: DOMPurify.sanitize(carToEdit.model),
+              comment: carToEdit.comment
+                ? DOMPurify.sanitize(carToEdit.comment)
+                : "",
               link: carToEdit.link ? DOMPurify.sanitize(carToEdit.link) : "",
               fuelConsumption: parseFloat(carToEdit.fuelConsumption) || 0,
               fuelPrice: parseFloat(carToEdit.fuelPrice) || 0,
@@ -867,13 +1031,16 @@
           validateForm() {
             this.validationErrors = {};
 
-            // Name validation with length limits and sanitization
-            if (!this.car.name || this.car.name.trim().length === 0) {
-              this.validationErrors.name = this.t("carNameRequired");
-            } else if (this.car.name.length > 100) {
-              this.validationErrors.name = this.t("nameTooLong");
-            } else if (this.car.name.trim().length < 2) {
-              this.validationErrors.name = this.t("nameTooShort");
+            if (!this.car.make) {
+              this.validationErrors.make = this.t("makeRequired");
+            }
+
+            if (!this.car.model) {
+              this.validationErrors.model = this.t("modelRequired");
+            }
+
+            if (this.car.comment && this.car.comment.length > 100) {
+              this.validationErrors.comment = this.t("commentTooLong");
             }
 
             // URL validation
@@ -944,40 +1111,25 @@
             }
             
             if (this.validateForm()) {
-              if (this.car.name) {
-                // Check if we're not exceeding maximum cars limit
-                if (this.cars.length >= 1000) {
-                  alert(this.t("tooManyCars"));
-                  return;
-                }
-                
-                // Sanitize all text inputs to prevent XSS
-                const sanitizedCar = {
-                  name: DOMPurify.sanitize(this.car.name.trim()),
-                  link: this.car.link ? DOMPurify.sanitize(this.car.link.trim()) : "",
-                  fuelConsumption: parseFloat(this.car.fuelConsumption) || 0,
-                  fuelPrice: parseFloat(this.car.fuelPrice) || 0,
-                  mileage: parseFloat(this.car.mileage) || 0,
-                  insurance: parseFloat(this.car.insurance) || 0,
-                  casco: parseFloat(this.car.casco) || 0,
-                  maintenance: parseFloat(this.car.maintenance) || 0,
-                  depreciation: parseFloat(this.car.depreciation) || 0,
-                  otherCosts: parseFloat(this.car.otherCosts) || 0,
-                  savedDate: new Date().toLocaleDateString("et-EE"),
-                };
-                
-                if (this.editIndex !== null && this.editIndex !== undefined) {
-                  // Update existing car
-                  this.cars[this.editIndex] = sanitizedCar;
-                } else {
-                  // Add new car
-                  this.cars.push(sanitizedCar);
-                }
-                
-                this.lastAddTime = now;
-                this.saveToLocalStorage();
-                this.resetForm();
+              if (this.cars.length >= 1000 && this.editIndex === null) {
+                alert(this.t("tooManyCars"));
+                return;
               }
+
+              const sanitizedCar = this.sanitizeCarData({
+                ...this.car,
+                savedDate: new Date().toLocaleDateString("et-EE"),
+              });
+              
+              if (this.editIndex !== null && this.editIndex !== undefined) {
+                this.cars[this.editIndex] = sanitizedCar;
+              } else {
+                this.cars.push(sanitizedCar);
+              }
+              
+              this.lastAddTime = now;
+              this.saveToLocalStorage();
+              this.resetForm();
             }
           },
 
@@ -1013,7 +1165,9 @@
 
           resetForm() {
             this.car = {
-              name: "",
+              make: "",
+              model: "",
+              comment: "",
               link: "",
               fuelConsumption: "",
               fuelPrice: "",
@@ -1122,13 +1276,13 @@
           },
 
           isValidCar(car) {
-            // Check if car is an object
             if (!car || typeof car !== 'object' || Array.isArray(car)) {
               return false;
             }
             
             const requiredFields = [
-              "name",
+              "make",
+              "model",
               "fuelConsumption",
               "fuelPrice",
               "mileage",
@@ -1146,12 +1300,22 @@
             
             if (!hasRequiredFields) return false;
             
-            // Validate name field
-            if (typeof car.name !== 'string' || car.name.trim().length === 0 || car.name.length > 100) {
+            if (
+              typeof car.make !== 'string' ||
+              car.make.trim().length === 0 ||
+              typeof car.model !== 'string' ||
+              car.model.trim().length === 0
+            ) {
+              return false;
+            }
+
+            if (
+              typeof car.comment !== 'undefined' &&
+              (typeof car.comment !== 'string' || car.comment.length > 100)
+            ) {
               return false;
             }
             
-            // Validate numeric fields
             const numericFields = ['fuelConsumption', 'fuelPrice', 'mileage', 'insurance', 'casco', 'maintenance', 'depreciation', 'otherCosts'];
             const numericValidation = numericFields.every(field => {
               const value = parseFloat(car[field]);
@@ -1169,9 +1333,10 @@
           },
           
           sanitizeCarData(car) {
-            // Sanitize and normalize car data
             return {
-              name: DOMPurify.sanitize(car.name.trim()),
+              make: DOMPurify.sanitize(car.make.trim()),
+              model: DOMPurify.sanitize(car.model.trim()),
+              comment: car.comment ? DOMPurify.sanitize(car.comment.trim()) : "",
               link: car.link ? DOMPurify.sanitize(car.link.trim()) : "",
               fuelConsumption: Math.max(0, Math.min(50, parseFloat(car.fuelConsumption) || 0)),
               fuelPrice: Math.max(0, Math.min(10, parseFloat(car.fuelPrice) || 0)),

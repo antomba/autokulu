@@ -35,6 +35,16 @@ filesToCopy.forEach(file => {
   }
 });
 
+// Copy static data files used by the UI
+if (fs.existsSync('data')) {
+  const distDataDir = path.join('dist', 'data');
+  if (!fs.existsSync(distDataDir)) {
+    fs.mkdirSync(distDataDir, { recursive: true });
+  }
+
+  fs.copyFileSync(path.join('data', 'make_model.json'), path.join(distDataDir, 'make_model.json'));
+}
+
 // Copy the built CSS file to dist if it exists
 if (fs.existsSync('dist/output.css')) {
   console.log('CSS file already exists in dist/');
