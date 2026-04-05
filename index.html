@@ -20,6 +20,7 @@
     <link href="dist/output.css" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.5/purify.min.js"></script>
+    <script src="./data/make_model.js"></script>
   </head>
 
 
@@ -956,6 +957,20 @@
         },
 
         methods: {
+          getEmbeddedVehicleData() {
+            const embeddedData = window.MAKE_MODEL_DATA;
+
+            if (
+              embeddedData &&
+              typeof embeddedData === "object" &&
+              !Array.isArray(embeddedData)
+            ) {
+              return embeddedData;
+            }
+
+            return null;
+          },
+
           scrollToCalculator() {
             document.getElementById("calculator").scrollIntoView({
               behavior: "smooth",
@@ -971,12 +986,8 @@
             this.vehicleDataError = false;
 
             try {
-              const response = await fetch("./data/make_model.json");
-              if (!response.ok) {
-                throw new Error("Vehicle data request failed");
-              }
-
-              const data = await response.json();
+              const embeddedData = this.getEmbeddedVehicleData();
+              const data = embeddedData || (await this.fetchVehicleData());
               if (!data || typeof data !== "object" || Array.isArray(data)) {
                 throw new Error("Invalid vehicle data structure");
               }
@@ -989,6 +1000,15 @@
             } finally {
               this.vehicleDataLoading = false;
             }
+          },
+
+          async fetchVehicleData() {
+            const response = await fetch("./data/make_model.json");
+            if (!response.ok) {
+              throw new Error("Vehicle data request failed");
+            }
+
+            return response.json();
           },
 
           loadSavedCars() {

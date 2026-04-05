@@ -10,22 +10,6 @@ A car ownership cost calculator built with Vue.js and Tailwind CSS, available in
 - 📱 Responsive design for all devices
 - 🔒 Security-focused with XSS protection
 
-## Data Sources
-
-### make_model.json
-
-The `make_model.json` file contains a standardized list of vehicle makes and models used for dropdown selections in the application.
-
-- **Source**: https://andmed.eesti.ee/datasets/esmaselt-registreeritud-soidukid
-- **Generation Prompt**: "Based on registration data, generate a standardized global make + model list for dropdowns. Cover ~97 percentile by count (arv), normalize naming across markets, remove low-frequency models, and keep it user-friendly."
-
-This dataset is optimized to:
-
-- Cover the vast majority of commonly registered vehicles (~97 percentile by count)
-- Normalize make and model naming across different markets
-- Exclude rare or low-frequency models to keep the UI clean and practical
-- Provide a user-friendly selection experience
-
 ## Development
 
 ### Prerequisites
@@ -37,7 +21,6 @@ This dataset is optimized to:
 
 1. Clone the repository
 2. Install dependencies:
-
    ```bash
    npm install
    ```
@@ -79,7 +62,6 @@ npm run serve
 ### Build Output
 
 The production build creates a `dist/` directory containing:
-
 - `index.html` - Production-ready HTML file
 - `output.css` - Minified Tailwind CSS
 - `CNAME` - Domain configuration (if exists)
@@ -104,7 +86,6 @@ This project is configured for automatic deployment to GitHub Pages:
 ### Manual Deployment
 
 1. Run the production build:
-
    ```bash
    npm run build
    ```

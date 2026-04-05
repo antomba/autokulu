@@ -42,7 +42,18 @@ if (fs.existsSync('data')) {
     fs.mkdirSync(distDataDir, { recursive: true });
   }
 
-  fs.copyFileSync(path.join('data', 'make_model.json'), path.join(distDataDir, 'make_model.json'));
+  const makeModelJsonPath = path.join('data', 'make_model.json');
+  const makeModelJsPath = path.join('data', 'make_model.js');
+  const distMakeModelJsonPath = path.join(distDataDir, 'make_model.json');
+  const distMakeModelJsPath = path.join(distDataDir, 'make_model.js');
+
+  fs.copyFileSync(makeModelJsonPath, distMakeModelJsonPath);
+
+  const makeModelData = fs.readFileSync(makeModelJsonPath, 'utf8');
+  const makeModelScript = `window.MAKE_MODEL_DATA = ${makeModelData};\n`;
+
+  fs.writeFileSync(makeModelJsPath, makeModelScript);
+  fs.writeFileSync(distMakeModelJsPath, makeModelScript);
 }
 
 // Copy the built CSS file to dist if it exists
